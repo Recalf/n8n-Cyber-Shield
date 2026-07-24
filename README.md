@@ -1,2 +1,231 @@
-# Cyber-Shield
-An n8n-Automated Threat Intelligence &amp; NDR System
+# Cyber Shield Threat Intelligence & Real-Time Alerting System
+
+## Comprehensive Documentation
+
+---
+
+## 1. System Overview
+
+**Cyber Shield** is an automated threat intelligence feed ingestion, network traffic correlation, and real-time security alerting system built on top of **n8n**, **MongoDB**, **Tshark (Wireshark)**, and **Discord**.
+
+The system operates in two core operational loops:
+
+1. **Threat Intelligence Ingestion Pipeline (24h Sync):** Fetches, cleans, and stores high-volume threat intelligence indicators (IP addresses and domains) from trusted threat feeds into a MongoDB database.
+
+
+2. **Real-Time Detection & Correlation Engine:** Listens to real-time network traffic captured by an edge sensor (running Tshark/PowerShell), cross-references active connections against the local threat intelligence database, calculates risk severity, and posts actionable incident alerts to a Discord channel.
+
+
+
+---
+
+## 2. System Architecture & Component Workflow
+
+```
+[ Edge Network Sensor ]
+     (Tshark / PS1)
+           │
+           │ HTTP POST (Header Auth)
+           ▼
+[ n8n: Cyber Shield Agent ] ◄─────── [ MongoDB Threat Intel DB ]
+           │                                 ▲
+           │ Risk Scoring & Correlation      │ 24h Scheduled Sync
+           ▼                                 │
+[ Discord Alert Channel ]            [ Threat Intel DB Workflow ]
+                                             │
+                                     ├── FeodoTracker Feed
+                                     ├── Ipsum Feed
+                                     └── EmergingThreats Feed
+
+```
+
+---
+
+## 3. Workflow Specifications
+
+### A. Real-Time Detection Engine: `Cyber Shield Agent`
+
+* **Purpose:** Inspect incoming live connection streams against active threat feeds and trigger automated Discord alerts when high/medium-risk indicators are identified.
+
+
+* **Ingress Method:** HTTP Webhook (`POST`) protected via Header Authentication.
+
+
+
+```
+Webhook ──► Mongo Query (Feodotracker) ──► Edit Fields ──┐
+        ├──► Mongo Query (Ipsum)        ──► Edit Fields ──┼─► Merge ──► Correlation Code ──► IF (Hits > 0) ──► Discord Node
+        └──► Mongo Query (EmergingThreats)─► Edit Fields ──┘
+
+```
+
+#### Node Breakdown & Logic:
+
+1. **Webhook Node (`Listen to Tshark`):** Receives structured network traffic logs containing `src_ip`, `dst_ip`, `domain`, and `timestamp`.
+
+
+2. **MongoDB Parallel Query Nodes (`feodotracker`, `ipsum`, `emergingthreat`):** Queries MongoDB collections concurrently using standard `$or` and `$in` query syntax to match incoming destination IPs and domains:
+
+
+```json
+{
+  "$or": [
+    { "type": "ip", "indicator": { "$in": ["dst_ip_1", "dst_ip_2"] } },
+    { "type": "domain", "indicator": { "$in": ["domain_1", "domain_2"] } }
+  ]
+}
+
+```
+
+
+3. **Set / Edit Fields Nodes:** Appends an `intel_source` field (e.g., `"feodotracker"`, `"ipsum"`, or `"emergingthreats"`) to identify where a match was found.
+
+
+4. **Merge Node:** Combines output streams from all three parallel database lookups.
+
+
+5. **Correlate Malicious Connection (Code Node):** Analyzes connection indicators against database hits and assigns threat risk rating:
+
+
+* **High Risk:** Both destination IP and domain match malicious entries.
+
+
+* **Medium Risk:** Destination domain matches malicious entries.
+
+
+* **Medium Risk:** Destination IP matches malicious entries.
+
+
+
+
+6. **If Node:** Filters execution—proceeds only if matched alert objects are present (`notEmpty`).
+
+
+7. **Discord Node:** Sends structured rich embeds to the target Discord webhook channel.
+
+
+
+---
+
+### B. Threat Intelligence Data Pipeline: `Threat Intel DB`
+
+* **Purpose:** Scheduled daily synchronization of external threat intelligence feeds.
+* **Execution Trigger:** Schedule Trigger (Every 24 Hours).
+
+```
+Schedule Trigger ──► HTTP Request (FeodoTracker)     ──► Clean Data 1 ──► IF ──► Sub-workflow (MongoDB_Intel_1)
+                 ├──► HTTP Request (Ipsum)            ──► Clean Data 2 ──► IF ──► Sub-workflow (MongoDB_Intel_2)
+                 └──► HTTP Request (EmergingThreats)  ──► Clean Data 3 ──► IF ──► Sub-workflow (MongoDB_Intel_3)
+
+```
+
+#### Why Sub-Workflows are Used:
+
+* **Performance:** Direct MongoDB node batch updates in primary canvas can stall or drop under heavy loads.
+* **Reliability:** Standard n8n MongoDB nodes can experience issues with "Continue on error output" during bulk inserts. Delegating updates to dedicated sub-workflows allows for safer batch loops (5,000 records/iteration) and error isolates.
+
+
+
+---
+
+### C. Batch Insertion Sub-Workflows (`MongoDB_Intel_1`, `2`, `3`)
+
+* **Purpose:** Wipes old threat intelligence records and performs optimized batch inserts of fresh indicators.
+
+
+
+```
+Data Input ──► Delete Documents (Wipe Collection) ──► Loop Over Items (Batch Size: 5000) ──► Insert Documents ──► Success
+                                                               ▲                                   │
+                                                               └───────────────────────────────────┘
+
+```
+
+* **Batching Configuration:** `batchSize: 5000`.
+
+
+* **Database Target Collections:**
+* `intel_feodotracker`
+
+* `intel_ipsum`
+
+* `intel_emergingthreats`
+
+
+
+
+---
+
+## 4. Threat Scoring & Discord Alert Format
+
+### Risk Scoring Matrix
+
+| Incident Severity | Condition | Discord Embedded Color Code |
+| --- | --- | --- |
+| **High Risk** | Matched BOTH malicious IP and malicious Domain
+
+ | **Red** (`16711680` / `#FF0000`)
+
+ |
+| **Medium Risk** | Matched malicious IP OR malicious Domain only
+
+ | **Amber** (`16753920` / `#FF8C00`)
+
+ |
+
+### Discord Alert Preview Example
+
+```text
+🚨 Threat Intelligence Alert
+
+Connection
+Src IP: 192.168.1.1
+Dst IP: 1.1.1.1
+Domain: cloudflare-dns.com
+Time: 7/21/2026, 09:13:07
+
+Threat IP Source
+feodotracker
+
+Threat Domain Source
+feodotracker
+
+Intel:
+High Risk: Malicious IP (1.1.1.1) and domain (cloudflare-dns.com) detected
+
+```
+
+---
+
+## 5. Database Schema (MongoDB `threat_intel`)
+
+The local database maintains three core indicator collections:
+
+| Database Name | Collection Name | Sample Record Document Structure |
+| --- | --- | --- |
+| `threat_intel` | `intel_feodotracker`<br> | `{ "_id": ObjectId("..."), "indicator": "195.178.110.137", "type": "ip" }` |
+| `threat_intel` | `intel_ipsum`<br> | `{ "_id": ObjectId("..."), "indicator": "94.154.43.50", "type": "ip" }` |
+| `threat_intel` | `intel_emergingthreats`<br> | `{ "_id": ObjectId("..."), "indicator": "malicious-domain.com", "type": "domain" }` |
+
+---
+
+## 6. Sensor Deployment Script (Edge Collector)
+
+Network traffic is captured via PowerShell script wrapping `tshark` on the host machine.
+
+### PowerShell Execution Command
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+.\sensor_v3_test.ps1
+
+```
+
+### Script Execution Flow
+
+1. Binds to designated interface (e.g., `'Ethernet'`).
+2. Captures IP/DNS connection details in real time.
+3. Constructs standard JSON payloads containing arrays of active network connections.
+
+
+4. Transmits HTTP `POST` requests to the n8n `Cyber Shield Agent` Webhook URL with authentication headers.
