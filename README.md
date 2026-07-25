@@ -84,18 +84,23 @@ Webhook ──► Mongo Query (Feodotracker) ──► Edit Fields ──┐
 4. **Merge Node:** Combines output streams from all three parallel database lookups.
 
 
-5. **Correlate Malicious Connection (Code Node):** Analyzes connection indicators against database hits and assigns threat risk rating:
+5. **Correlate Malicious Connection (Code Node):** Ingests incoming network traffic, correlates indicators against database hits, and generates the alert payload:
 
 
-* **High Risk:** Both destination IP and domain match malicious entries.
+* **Full Connection Object Preservation:** Grabs and attaches the **entire connection object** (`conn` containing `src_ip`, `dst_ip`, `domain`, and `timestamp`) directly from the Webhook node. This ensures full connection context—including the domain—is always passed to downstream alerts regardless of risk severity.
 
 
-* **Medium Risk:** Destination domain matches malicious entries.
+* **Indicator Correlation:** Evaluates the connection's `dst_ip` against IP threat hits (`ipHits`) and `domain` against domain threat hits (`domainHits`).
 
 
-* **Medium Risk:** Destination IP matches malicious entries.
+* **Risk Scoring:**
+* **High Risk:** Both `dst_ip` and `domain` match malicious entries.
 
 
+* **Medium Risk:** Only `domain` matches malicious entries (full connection object attached).
+
+
+* **Medium Risk:** Only `dst_ip` matches malicious entries (full connection object attached, preserving domain).
 
 
 6. **If Node:** Filters execution—proceeds only if matched alert objects are present (`notEmpty`).
