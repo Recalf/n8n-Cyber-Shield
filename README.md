@@ -221,7 +221,15 @@ Schedule Trigger ──► HTTP Request (FeodoTracker)     ──► Clean Data 
 * **Performance:** Direct MongoDB node batch updates in primary canvas can stall or drop under heavy loads.
 * **Reliability:** Standard n8n MongoDB nodes experience issues with "Continue on error output". Delegating updates to dedicated sub-workflows allows for safer batch loops (5,000 records/iteration) and error isolates.
 
+### External Threat Intelligence Sources
 
+The system fetches raw text feeds from three external sources every 24 hours:
+
+| Source Name | Raw Feed Endpoint URL | Indicator Type | Description & Focus |
+| :--- | :--- | :--- | :--- |
+| **Abuse.ch Feodo Tracker** | `https://feodotracker.abuse.ch/downloads/ipblocklist.txt` | IP (`ip`) | Tracks active Botnet Command & Control (C2) servers (e.g., Dridex, TrickBot, QakBot, Pikabot). |
+| **IPsum (Level 2)** | `https://raw.githubusercontent.com/stamparm/ipsum/master/levels/2.txt` | IP (`ip`) | Aggregated threat list containing malicious IPs flagged on at least **2 or more** distinct blacklists. |
+| **Emerging Threats** | `https://rules.emergingthreats.net/blockrules/compromised-ips.txt` | IP (`ip`) | Daily list of verified compromised hosts and active attack source IP addresses. |
 
 ---
 
