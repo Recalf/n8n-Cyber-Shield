@@ -167,16 +167,8 @@ Data Input ──► Delete Documents (Wipe Collection) ──► Loop Over Item
 
 | Incident Severity | Condition | Discord Embedded Color Code |
 | --- | --- | --- |
-| **High Risk** | Matched BOTH malicious IP and malicious Domain
-
- | **Red** (`16711680` / `#FF0000`)
-
- |
-| **Medium Risk** | Matched malicious IP OR malicious Domain only
-
- | **Amber** (`16753920` / `#FF8C00`)
-
- |
+| **High Risk** | Matched BOTH malicious IP and malicious Domain | **Red** (`16711680` / `#FF0000`) |
+| **Medium Risk** | Matched malicious IP OR malicious Domain only | **Amber** (`16753920` / `#FF8C00`) |
 
 ### Discord Alert Preview Example
 
