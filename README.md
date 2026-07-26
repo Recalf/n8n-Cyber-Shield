@@ -55,29 +55,6 @@ Before running the script, open it and define the following variables at the top
 | `$InterfaceNum` | The numeric ID of the network interface tshark should listen on (Run `tshark -D` to find your interface number). |
 | `$SecretKey` | Your custom API Key / Password, sent via the `X-API-KEY` header to authenticate with n8n. |
 
-### Running the Script & Execution Policies
-
-By default, Windows restricts running custom or unsigned PowerShell scripts. To execute the sensor, you must modify the Execution Policy.
-
-**Option A: Temporary Bypass (Recommended for testing)**
-
-This modifies the policy *only* for the current active PowerShell window. Once you close the terminal, the security policy reverts to its safe default.
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
-.\sensor_v3_test.ps1
-```
-
-**Option B: Permanent Bypass (For permanent/production deployments)**
-
-If you are setting this up to run automatically on startup or in the background and do not want to manually bypass the policy every time, you can set it permanently. **Open PowerShell as Administrator** and run:
-
-```powershell
-Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy RemoteSigned
-```
-
-*(After doing this, you can execute `.\sensor_v3_test.ps1` or any other powershell script normally anytime).*
-
 ### Script Execution Flow & Payload Schema
 
 The script runs in an infinite loop, capturing network data in batches and structuring it before transmission.
@@ -130,6 +107,30 @@ The webhook receives a deduplicated JSON array of connection objects matching th
   }
 ]
 ```
+
+### Running the Script & Execution Policies
+
+By default, Windows restricts running custom or unsigned PowerShell scripts. To execute the sensor, you must modify the Execution Policy.
+
+**Option A: Temporary Bypass (Recommended for testing)**
+
+This modifies the policy *only* for the current active PowerShell window. Once you close the terminal, the security policy reverts to its safe default.
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+.\sensor_v3_test.ps1
+```
+
+**Option B: Permanent Bypass (For permanent/production deployments)**
+
+If you are setting this up to run automatically on startup or in the background and do not want to manually bypass the policy every time, you can set it permanently. **Open PowerShell as Administrator** and run:
+
+```powershell
+Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy RemoteSigned
+```
+
+*(After doing this, you can execute `.\sensor_v3_test.ps1` or any other powershell script normally anytime).*
+
 ---
 
 ## 4. Workflow Specifications
