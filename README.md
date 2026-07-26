@@ -209,7 +209,7 @@ The local database maintains three core indicator collections:
 To optimize lookup performance, each collection uses a compound index on `indicator` and `type`.
 
 #### Setup via MongoDB Compass GUI
-1. Open collection (each one) -> Select **Indexes** tab -> Click **Create Index**.
+1. On each collection -> Select **Indexes** tab -> Click **Create Index**.
 2. Add Field 1: `indicator` -> Select `1 (asc)`.
 3. Add Field 2: `type` -> Select `1 (asc)`.
 4. Leave options unchecked and click **Create Index**.
