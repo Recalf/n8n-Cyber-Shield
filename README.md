@@ -176,9 +176,9 @@ Data Input ──► Delete Documents (Wipe Collection) ──► Loop Over Item
 🚨 Threat Intelligence Alert
 
 Connection
-Src IP: 192.168.1.1
-Dst IP: 1.1.1.1
-Domain: cloudflare-dns.com
+Src IP: xxxxx
+Dst IP: yyyyy
+Domain: zzzzz
 Time: 7/21/2026, 09:13:07
 
 Threat IP Source
@@ -188,7 +188,7 @@ Threat Domain Source
 feodotracker
 
 Intel:
-High Risk: Malicious IP (1.1.1.1) and domain (cloudflare-dns.com) detected
+High Risk: Malicious IP (yyyyy) and domain (zzzzz) detected
 
 ```
 
@@ -204,6 +204,21 @@ The local database maintains three core indicator collections:
 | `threat_intel` | `intel_ipsum`<br> | `{ "_id": ObjectId("..."), "indicator": "94.154.43.50", "type": "ip" }` |
 | `threat_intel` | `intel_emergingthreats`<br> | `{ "_id": ObjectId("..."), "indicator": "malicious-domain.com", "type": "domain" }` |
 
+### Database Indexes
+
+To optimize lookup performance, each collection uses a compound index on `indicator` and `type`.
+
+#### Setup via MongoDB Compass GUI
+1. Open collection (each one) -> Select **Indexes** tab -> Click **Create Index**.
+2. Add Field 1: `indicator` -> Select `1 (asc)`.
+3. Add Field 2: `type` -> Select `1 (asc)`.
+4. Leave options unchecked and click **Create Index**.
+
+#### Setup via MongoDB Shell / Code
+```javascript
+// Run on each collection: intel_feodotracker, intel_ipsum, intel_emergingthreats
+db.collection.createIndex({ "indicator": 1, "type": 1 });
+```
 ---
 
 ## 6. Sensor Deployment Script (Edge Collector)
