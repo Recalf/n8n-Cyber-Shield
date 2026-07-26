@@ -255,7 +255,7 @@ If you are setting this up to run automatically on startup or in the background 
 Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy RemoteSigned
 ```
 
-*(After doing this, you can execute `.\sensor_v3_test.ps1` normally anytime).*
+*(After doing this, you can execute `.\sensor_v3_test.ps1` or anyother powershell scripts normally anytime).*
 
 ### Script Execution Flow & Payload Schema
 
