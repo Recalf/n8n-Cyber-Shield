@@ -135,7 +135,7 @@ Schedule Trigger ──► HTTP Request (FeodoTracker)     ──► Clean Data 
 
 ### C. Batch Insertion Sub-Workflows (`MongoDB_Intel_1`, `2`, `3`)
 
-* **Purpose:** Wipes old threat intelligence records and performs optimized batch inserts of fresh indicators.
+* **Purpose:** Wipes old threat intelligence records and performs batch inserts of fresh indicators.
 
 
 
