@@ -221,7 +221,7 @@ db.collection.createIndex({ "indicator": 1, "type": 1 });
 ```
 ---
 
-## 6. Sensor Deployment Script (Edge Collector)
+## 6. Sensor Deployment Script (Tshark Powershell Agent)
 
 Network traffic is captured via PowerShell script wrapping `tshark` on the host machine.
 
