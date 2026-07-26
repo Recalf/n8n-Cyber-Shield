@@ -220,24 +220,92 @@ To optimize lookup performance, each collection uses a compound index on `indica
 db.collection.createIndex({ "indicator": 1, "type": 1 });
 ```
 ---
+## 6. Sensor Deployment Script (Tshark PowerShell Agent)
 
-## 6. Sensor Deployment Script (Tshark Powershell Agent)
+Network traffic is captured via a dedicated PowerShell script (included in this repository) that acts as a continuous wrapper around `tshark`. It actively sniffs network interfaces for outbound connections and forwards the telemetry to the n8n agent.
 
-Network traffic is captured via PowerShell script wrapping `tshark` on the host machine.
+### Configuration Variables
 
-### PowerShell Execution Command
+Before running the script, open it and define the following variables at the top of the file:
+
+| Variable | Description |
+| --- | --- |
+| `$WebhookUrl` | The full HTTP endpoint of your n8n Cyber Shield Agent Webhook. |
+| `$InterfaceNum` | The numeric ID of the network interface tshark should listen on (Run `tshark -D` to find your interface number). |
+| `$SecretKey` | Your custom API Key / Password, sent via the `X-API-KEY` header to authenticate with n8n. |
+
+### Running the Script & Execution Policies
+
+By default, Windows restricts running custom or unsigned PowerShell scripts. To execute the sensor, you must modify the Execution Policy.
+
+**Option A: Temporary Bypass (Recommended for testing)**
+
+This modifies the policy *only* for the current active PowerShell window. Once you close the terminal, the security policy reverts to its safe default.
 
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
 .\sensor_v3_test.ps1
-
 ```
 
-### Script Execution Flow
+**Option B: Permanent Bypass (For permanent/production deployments)**
 
-1. Binds to designated interface (e.g., `'Ethernet'`).
-2. Captures IP/DNS connection details in real time.
-3. Constructs standard JSON payloads containing arrays of active network connections.
+If you are setting this up to run automatically on startup or in the background and do not want to manually bypass the policy every time, you can set it permanently. **Open PowerShell as Administrator** and run:
 
+```powershell
+Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy RemoteSigned
+```
 
-4. Transmits HTTP `POST` requests to the n8n `Cyber Shield Agent` Webhook URL with authentication headers.
+*(After doing this, you can execute `.\sensor_v3_test.ps1` normally anytime).*
+
+### Script Execution Flow & Payload Schema
+
+The script runs in an infinite loop, capturing network data in batches and structuring it before transmission.
+
+#### Internal Workflow Tree
+
+```text
+[Start Infinite Loop]
+ │
+ ├──► 1. Traffic Capture (30-second window)
+ │       Target: TLS SNI handshakes (tls.handshake.type == 1)
+ │
+ ├──► 2. Data Extraction
+ │       Fields mapped: timestamp, src_ip, dst_ip, domain
+ │
+ ├──► 3. Noise Filtering
+ │       Drops empty lines.
+ │       Drops local/broadcast destinations (127.*, 192.168.*, 10.*).
+ │
+ ├──► 4. Deduplication
+ │       Groups identical connections (src, dst, domain) within the same window.
+ │       Preserves only the timestamp of the first packet.
+ │
+ ├──► 5. Payload Transmission
+ │       Action: HTTP POST to Webhook
+ │       Headers: { "X-API-KEY": "$SecretKey", "Content-Type": "application/json" }
+ │       Body: JSON Array of structured events (See Schema below)
+ │
+ └──► 6. Cooldown (5 seconds)
+         Loops back to Start
+```
+
+#### Transmitted JSON Payload Schema
+
+The webhook receives a deduplicated JSON array of connection objects matching this schema:
+
+```json
+[
+  {
+    "src_ip": "192.168.1.100",
+    "dst_ip": "104.18.32.7",
+    "domain": "malicious-example.com",
+    "timestamp": "May 15, 2024 14:32:01.123456000"
+  },
+  {
+    "src_ip": "192.168.1.100",
+    "dst_ip": "93.184.216.34",
+    "domain": "another-domain.org",
+    "timestamp": "May 15, 2024 14:32:10.987654000"
+  }
+]
+```
