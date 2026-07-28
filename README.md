@@ -45,13 +45,14 @@ Cyber Shield operates through two continuous, automated workflows:
            ▼
 [ n8n: Cyber Shield Agent ] ◄─────── [ MongoDB Threat Intel DB ]
            │                                 ▲
-           │ Risk Scoring & Correlation      │ 24h Scheduled Sync
+           │ Risk Scoring & Correlation      │ 12h & 24h Scheduled Syncs
            ▼                                 │
 [ Discord Alert Channel ]            [ Threat Intel DB Workflow ]
                                              │
-                                     ├── FeodoTracker Feed
-                                     ├── Ipsum Feed
-                                     └── EmergingThreats Feed
+                                             ├── FeodoTracker Feed (12h)
+                                             ├── Hagezi TIF Domains (12h)
+                                             ├── Stamparm IPSum Feed (24h)
+                                             └── EmergingThreats Feed (24h)
 
 ```
 
