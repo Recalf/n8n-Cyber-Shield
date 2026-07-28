@@ -89,7 +89,7 @@ The script runs in an infinite loop, capturing network data in batches and struc
  │
  ├──► 3. Noise Filtering
  │       Drops empty lines.
- │       Drops local/broadcast destinations (127.*, 192.168.*, 10.*).
+ │       Drops Loopback, Private Subnets, Multicast, Reserved, and Broadcast destinations (127.*, 192.168.*, 10.*, 172.16-31.*, 224.0.0.0+).
  │
  ├──► 4. Deduplication
  │       Groups identical connections (src, dst, domain) within the same window.
@@ -160,11 +160,11 @@ Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy RemoteSigned
 * **Ingress Method:** HTTP Webhook (`POST`) protected via Header Authentication.
 
 
-
 ```
 Webhook ──► Mongo Query (Feodotracker) ──► Edit Fields ──┐
-        ├──► Mongo Query (Ipsum)        ──► Edit Fields ──┼─► Merge ──► Correlation Code ──► IF (Hits > 0) ──► Discord Node
-        └──► Mongo Query (EmergingThreats)─► Edit Fields ──┘
+        ├──► Mongo Query (Stamparm_IPSum) ─► Edit Fields ──┼─► Merge ──► Correlate ──► IF (Hits > 0) ──► Discord
+        ├──► Mongo Query (EmergingThreats)─► Edit Fields ──┤
+        └──► Mongo Query (Hagezi_TIF)    ──► Edit Fields ──┘
 
 ```
 
@@ -173,7 +173,7 @@ Webhook ──► Mongo Query (Feodotracker) ──► Edit Fields ──┐
 1. **Webhook Node (`Listen to Tshark`):** Receives structured network traffic logs containing `src_ip`, `dst_ip`, `domain`, and `timestamp`.
 
 
-2. **MongoDB Parallel Query Nodes (`feodotracker`, `ipsum`, `emergingthreat`):** Queries MongoDB collections concurrently using standard `$or` and `$in` query syntax to match incoming destination IPs and domains:
+2. **MongoDB Parallel Query Nodes (`feodotracker`, `ipsum`, `emergingthreat`, `intel_tif`):** Queries MongoDB collections concurrently using standard `$or` and `$in` query syntax to match incoming destination IPs and domains:
 
 
 ```json
@@ -187,10 +187,10 @@ Webhook ──► Mongo Query (Feodotracker) ──► Edit Fields ──┐
 ```
 
 
-3. **Set / Edit Fields Nodes:** Appends an `intel_source` field (e.g., `"feodotracker"`, `"ipsum"`, or `"emergingthreats"`) to identify where a match was found.
+3. **Set / Edit Fields Nodes:** Appends an `intel_source` field (e.g., `"feodotracker"`, `"ipsum"`, `"emergingthreats"`, or `"tif"`) to identify where a match was found.
 
 
-4. **Merge Node:** Combines output streams from all three parallel database lookups.
+4. **Merge Node:** Combines output streams from all parallel database lookups.
 
 
 5. **Correlate Malicious Connection (Code Node):** Ingests incoming network traffic, correlates indicators against database hits, and generates the alert payload:
@@ -223,13 +223,15 @@ Webhook ──► Mongo Query (Feodotracker) ──► Edit Fields ──┐
 
 ### B. Threat Intelligence Data Pipeline: `Threat Intel DB`
 
-* **Purpose:** Scheduled daily synchronization of external threat intelligence feeds.
-* **Execution Trigger:** Schedule Trigger (Every 24 Hours).
+* **Purpose:** Scheduled synchronization of external threat intelligence feeds at different intervals based on update frequency.
+* **Execution Trigger:** Schedule 1 for every 12 hours (00:30). Schedule 2 for every 24 hours (00:00)
 
 ```
-Schedule Trigger ──► HTTP Request (FeodoTracker)     ──► Clean Data 1 ──► IF ──► Sub-workflow (MongoDB_Intel_1)
-                 ├──► HTTP Request (Ipsum)            ──► Clean Data 2 ──► IF ──► Sub-workflow (MongoDB_Intel_2)
-                 └──► HTTP Request (EmergingThreats)  ──► Clean Data 3 ──► IF ──► Sub-workflow (MongoDB_Intel_3)
+Schedule 1 (12h) ──► HTTP Request (FeodoTracker)     ──► Clean Data 1 ──► IF ──► Sub-workflow (MongoDB_Intel_FeodoTracker)
+                 └──► HTTP Request (Hagezi_TIF)       ──► Clean Data 2 ──► IF ──► Sub-workflow (MongoDB_Intel_TIF)
+
+Schedule 2 (24h) ──► HTTP Request (EmergingThreats)   ──► Clean Data 4 ──► IF ──► Sub-workflow (MongoDB_Intel_EmergingThreats)
+                 └──► HTTP Request (Stamparm_IPSum)   ──► Clean Data 3 ──► IF ──► Sub-workflow (MongoDB_Intel_IPSum)
 
 ```
 
@@ -244,9 +246,10 @@ The system fetches raw text feeds from three external sources every 24 hours:
 
 | Source Name | Raw Feed Endpoint URL | Indicator Type | Description & Focus |
 | :--- | :--- | :--- | :--- |
-| **Abuse.ch Feodo Tracker** | `https://feodotracker.abuse.ch/downloads/ipblocklist.txt` | IP (`ip`) | Tracks active Botnet Command & Control (C2) servers (e.g., Dridex, TrickBot, QakBot, Pikabot). |
-| **IPsum (Level 2)** | `https://raw.githubusercontent.com/stamparm/ipsum/master/levels/2.txt` | IP (`ip`) | Aggregated threat list containing malicious IPs flagged on at least **2 or more** distinct blacklists. |
-| **Emerging Threats** | `https://rules.emergingthreats.net/blockrules/compromised-ips.txt` | IP (`ip`) | Daily list of verified compromised hosts and active attack source IP addresses. |
+| **Abuse.ch Feodo Tracker** | `https://feodotracker.abuse.ch/downloads/ipblocklist.txt` | IP (`ip`) | ~5 Latest active Botnet Command & Control (C2) servers IP addresses (e.g., Dridex, TrickBot, QakBot, Pikabot). |
+| **Hagezi TIF (Mini)** | `https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/tif.mini-onlydomains.txt` | Domain (`domain`) | ~160k highly accurate malicious domains, serving as the primary SNI correlation target. |
+| **IPsum (Level 2)** | `https://raw.githubusercontent.com/stamparm/ipsum/master/levels/2.txt` | IP (`ip`) | ~30k Aggregated threat list containing malicious IPs flagged on at least **2 or more** distinct blacklists. |
+| **Emerging Threats** | `https://rules.emergingthreats.net/blockrules/compromised-ips.txt` | IP (`ip`) | ~600 Daily list of verified compromised hosts and active attack source IP addresses. |
 
 ---
 
@@ -273,8 +276,7 @@ Data Input ──► Delete Documents (Wipe Collection) ──► Loop Over Item
 
 * `intel_emergingthreats`
 
-
-
+* `intel_tif`
 
 ---
 
@@ -320,6 +322,7 @@ The local database maintains three core indicator collections:
 | `threat_intel` | `intel_feodotracker`<br> | `{ "_id": ObjectId("..."), "indicator": "195.178.110.137", "type": "ip" }` |
 | `threat_intel` | `intel_ipsum`<br> | `{ "_id": ObjectId("..."), "indicator": "94.154.43.50", "type": "ip" }` |
 | `threat_intel` | `intel_emergingthreats`<br> | `{ "_id": ObjectId("..."), "indicator": "195.178.110.137", "type": "ip" }` |
+| `threat_intel` | `intel_tif`<br> | `{ "_id": ObjectId("..."), "indicator": "malicious-phishing.com", "type": "domain" }` |
 
 ### Database Indexes
 
@@ -333,6 +336,6 @@ To optimize lookup performance, each collection uses a compound index on `indica
 
 #### Setup via MongoDB Shell / Code
 ```javascript
-// Run on each collection: intel_feodotracker, intel_ipsum, intel_emergingthreats
+// Run on each collection: intel_feodotracker, intel_ipsum, intel_emergingthreats, intel_tif
 db.collection.createIndex({ "indicator": 1, "type": 1 });
 ```
