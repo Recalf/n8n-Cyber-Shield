@@ -153,7 +153,52 @@ Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy RemoteSigned
 
 ## 4. Workflow Specifications
 
-### A. Real-Time Detection Engine: `Cyber Shield Agent`
+### A. Threat Intelligence Data Pipeline: `Threat Intel DB`
+
+* **Purpose:** Scheduled synchronization of external threat intelligence feeds at different intervals based on update frequency.
+* **Execution Trigger:** Schedule 1 for every 12 hours (00:30). Schedule 2 for every 24 hours (00:00)
+
+![n8n_threat_intel_db_sub_workflow](assets/Screenshot_2.png)
+
+#### Why Sub-Workflows are Used:
+
+* **Performance:** Direct MongoDB node batch updates in primary canvas can stall or drop under heavy loads.
+* **Reliability:** Standard n8n MongoDB nodes experience issues with "Continue on error output". Delegating updates to dedicated sub-workflows allows for safer batch loops (5,000 records/iteration) and error isolates.
+
+### External Threat Intelligence Sources
+
+The system fetches raw text feeds from three external sources every 24 hours:
+
+| Source Name | Raw Feed Endpoint URL | Indicator Type | Description & Focus |
+| :--- | :--- | :--- | :--- |
+| **Abuse.ch Feodo Tracker** | `https://feodotracker.abuse.ch/downloads/ipblocklist.txt` | IP (`ip`) | ~5–20 high-confidence active Botnet Command & Control (C2) server IP addresses targeting high-profile malware families (e.g., Dridex, TrickBot, QakBot). |
+| **Hagezi TIF (Mini)** | `https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/tif.mini-onlydomains.txt` | Domain (`domain`) | ~160k highly accurate malicious domains, serving as the primary SNI correlation target. |
+| **IPsum (Level 2)** | `https://raw.githubusercontent.com/stamparm/ipsum/master/levels/2.txt` | IP (`ip`) | ~30k aggregated threat list containing malicious IPs flagged on at least **2 or more** distinct blacklists. |
+| **Emerging Threats** | `https://rules.emergingthreats.net/blockrules/compromised-ips.txt` | IP (`ip`) | ~600 daily list of verified compromised hosts and active attack source IP addresses. |
+
+---
+
+### B. Batch Insertion Sub-Workflows (`MongoDB_Intel_1`, `2`, `3`)
+
+* **Purpose:** Wipes old threat intelligence records and performs batch inserts of fresh indicators.
+
+![n8n_threat_intel_db](assets/Screenshot_3.png)
+
+* **Batching Configuration:** `batchSize: 5000`.
+
+
+* **Database Target Collections:**
+* `intel_feodotracker`
+
+* `intel_ipsum`
+
+* `intel_emergingthreats`
+
+* `intel_tif`
+
+---
+
+### C. Real-Time Detection Engine: `Cyber Shield Agent`
 
 * **Purpose:** Inspect incoming live connection streams against active threat feeds and trigger automated Discord alerts when high/medium-risk indicators are identified.
 
@@ -210,53 +255,6 @@ Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy RemoteSigned
 
 
 7. **Discord Node:** Sends structured rich embeds to the target Discord webhook channel.
-
-
-
----
-
-### B. Threat Intelligence Data Pipeline: `Threat Intel DB`
-
-* **Purpose:** Scheduled synchronization of external threat intelligence feeds at different intervals based on update frequency.
-* **Execution Trigger:** Schedule 1 for every 12 hours (00:30). Schedule 2 for every 24 hours (00:00)
-
-![n8n_threat_intel_db_sub_workflow](assets/Screenshot_2.png)
-
-#### Why Sub-Workflows are Used:
-
-* **Performance:** Direct MongoDB node batch updates in primary canvas can stall or drop under heavy loads.
-* **Reliability:** Standard n8n MongoDB nodes experience issues with "Continue on error output". Delegating updates to dedicated sub-workflows allows for safer batch loops (5,000 records/iteration) and error isolates.
-
-### External Threat Intelligence Sources
-
-The system fetches raw text feeds from three external sources every 24 hours:
-
-| Source Name | Raw Feed Endpoint URL | Indicator Type | Description & Focus |
-| :--- | :--- | :--- | :--- |
-| **Abuse.ch Feodo Tracker** | `https://feodotracker.abuse.ch/downloads/ipblocklist.txt` | IP (`ip`) | ~5–20 high-confidence active Botnet Command & Control (C2) server IP addresses targeting high-profile malware families (e.g., Dridex, TrickBot, QakBot). |
-| **Hagezi TIF (Mini)** | `https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/tif.mini-onlydomains.txt` | Domain (`domain`) | ~160k highly accurate malicious domains, serving as the primary SNI correlation target. |
-| **IPsum (Level 2)** | `https://raw.githubusercontent.com/stamparm/ipsum/master/levels/2.txt` | IP (`ip`) | ~30k aggregated threat list containing malicious IPs flagged on at least **2 or more** distinct blacklists. |
-| **Emerging Threats** | `https://rules.emergingthreats.net/blockrules/compromised-ips.txt` | IP (`ip`) | ~600 daily list of verified compromised hosts and active attack source IP addresses. |
-
----
-
-### C. Batch Insertion Sub-Workflows (`MongoDB_Intel_1`, `2`, `3`)
-
-* **Purpose:** Wipes old threat intelligence records and performs batch inserts of fresh indicators.
-
-![n8n_threat_intel_db](assets/Screenshot_3.png)
-
-* **Batching Configuration:** `batchSize: 5000`.
-
-
-* **Database Target Collections:**
-* `intel_feodotracker`
-
-* `intel_ipsum`
-
-* `intel_emergingthreats`
-
-* `intel_tif`
 
 ---
 
