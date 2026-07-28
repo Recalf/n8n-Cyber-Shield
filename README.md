@@ -155,7 +155,7 @@ Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy RemoteSigned
 
 ### A. Threat Intelligence Data Pipeline: `Threat Intel DB`
 
-* **Purpose:** Scheduled synchronization of external threat intelligence feeds at different intervals based on update frequency.
+* **Purpose:** Scheduled synchronization of external threat intelligence feeds at different intervals based on update frequency to continuously refresh the target MongoDB collections.
 * **Execution Trigger:** Schedule 1 for every 12 hours (00:30). Schedule 2 for every 24 hours (00:00)
 
 ![n8n_threat_intel_db_sub_workflow](assets/Screenshot_2.png)
@@ -180,7 +180,7 @@ The system fetches raw text feeds from three external sources every 24 hours:
 
 ### B. Batch Insertion Sub-Workflows (`MongoDB_Intel_dbname`)
 
-* **Purpose:** Wipes old threat intelligence records and performs batch inserts of fresh indicators.
+* **Purpose:** Wipes old threat intelligence records and performs batch inserts of fresh indicators in MongoDB.
 
 ![n8n_threat_intel_db](assets/Screenshot_3.png)
 
