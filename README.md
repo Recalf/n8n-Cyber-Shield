@@ -302,7 +302,7 @@ The local database maintains three core indicator collections:
 | --- | --- | --- |
 | `threat_intel` | `intel_feodotracker`<br> | `{ "_id": ObjectId("..."), "indicator": "195.178.110.137", "type": "ip" }` |
 | `threat_intel` | `intel_ipsum`<br> | `{ "_id": ObjectId("..."), "indicator": "94.154.43.50", "type": "ip" }` |
-| `threat_intel` | `intel_emergingthreats`<br> | `{ "_id": ObjectId("..."), "indicator": "malicious-domain.com", "type": "domain" }` |
+| `threat_intel` | `intel_emergingthreats`<br> | `{ "_id": ObjectId("..."), "indicator": "195.178.110.137", "type": "ip" }` |
 
 ### Database Indexes
 
