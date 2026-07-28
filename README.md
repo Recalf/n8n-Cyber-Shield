@@ -178,7 +178,7 @@ The system fetches raw text feeds from three external sources every 24 hours:
 
 ---
 
-### B. Batch Insertion Sub-Workflows (`MongoDB_Intel_1`, `2`, `3`)
+### B. Batch Insertion Sub-Workflows (`MongoDB_Intel_dbname`)
 
 * **Purpose:** Wipes old threat intelligence records and performs batch inserts of fresh indicators.
 
