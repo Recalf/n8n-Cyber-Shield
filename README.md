@@ -212,7 +212,7 @@ The system fetches raw text feeds from three external sources every 24 hours:
 1. **Webhook Node (`Listen to Tshark`):** Receives structured network traffic logs containing `src_ip`, `dst_ip`, `domain`, and `timestamp`.
 
 
-2. **MongoDB Parallel Query Nodes (`feodotracker`, `ipsum`, `emergingthreat`, `intel_tif`):** Queries MongoDB collections using standard `$or` and `$in` query syntax to match incoming destination IPs and domains:
+2. **MongoDB Parallel Query Nodes (`FeodoTracker`, `Stamparm_IPSum`, `EmergingThreat`, `Hagezi_TIF`):** Queries MongoDB collections using standard `$or` and `$in` query syntax to match incoming destination IPs and domains:
 
 
 ```json
