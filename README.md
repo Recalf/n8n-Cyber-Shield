@@ -17,7 +17,7 @@ Built using **n8n**, **MongoDB**, **Tshark (Wireshark)**, and **Discord**, Cyber
 Cyber Shield operates through two continuous, automated workflows:
 
 1. **Threat Intelligence Pipeline (Data Ingestion)**
-   * **What it does:** Automatically fetches, normalizes, and stores over **190,000+ malicious IP addresses and domain indicators** from reputable security feeds (Feodo Tracker, Hagezi TIF, Stamparm IPSum, and Emerging Threats).
+   * **What it does:** By default, it automatically fetches, normalizes, and stores over **30,000+ malicious IP addresses and 160,000+ malicious domain indicators** from reputable security feeds (Feodo Tracker, Hagezi TIF, Stamparm IPSum, and Emerging Threats).
    * **Sync Frequency:** Runs on **12-hour** schedules for some feeds and **24-hour** schedules for others, depending on each feed's expiration and update rate to keep local threat data current.
 
 2. **Real-Time Detection & Alerting Engine**
