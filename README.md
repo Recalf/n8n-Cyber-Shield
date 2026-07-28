@@ -246,10 +246,10 @@ The system fetches raw text feeds from three external sources every 24 hours:
 
 | Source Name | Raw Feed Endpoint URL | Indicator Type | Description & Focus |
 | :--- | :--- | :--- | :--- |
-| **Abuse.ch Feodo Tracker** | `https://feodotracker.abuse.ch/downloads/ipblocklist.txt` | IP (`ip`) | ~5 Latest active Botnet Command & Control (C2) servers IP addresses (e.g., Dridex, TrickBot, QakBot, Pikabot). |
+| **Abuse.ch Feodo Tracker** | `https://feodotracker.abuse.ch/downloads/ipblocklist.txt` | IP (`ip`) | ~5–20 high-confidence active Botnet Command & Control (C2) server IP addresses targeting high-profile malware families (e.g., Dridex, TrickBot, QakBot). |
 | **Hagezi TIF (Mini)** | `https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/tif.mini-onlydomains.txt` | Domain (`domain`) | ~160k highly accurate malicious domains, serving as the primary SNI correlation target. |
-| **IPsum (Level 2)** | `https://raw.githubusercontent.com/stamparm/ipsum/master/levels/2.txt` | IP (`ip`) | ~30k Aggregated threat list containing malicious IPs flagged on at least **2 or more** distinct blacklists. |
-| **Emerging Threats** | `https://rules.emergingthreats.net/blockrules/compromised-ips.txt` | IP (`ip`) | ~600 Daily list of verified compromised hosts and active attack source IP addresses. |
+| **IPsum (Level 2)** | `https://raw.githubusercontent.com/stamparm/ipsum/master/levels/2.txt` | IP (`ip`) | ~30k aggregated threat list containing malicious IPs flagged on at least **2 or more** distinct blacklists. |
+| **Emerging Threats** | `https://rules.emergingthreats.net/blockrules/compromised-ips.txt` | IP (`ip`) | ~600 daily list of verified compromised hosts and active attack source IP addresses. |
 
 ---
 
