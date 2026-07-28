@@ -159,14 +159,6 @@ Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy RemoteSigned
 
 
 * **Ingress Method:** HTTP Webhook (`POST`) protected via Header Authentication.
-* 
-```
-Webhook ──► Mongo Query (Feodotracker) ──► Edit Fields ──┐
-        ├──► Mongo Query (Stamparm_IPSum) ─► Edit Fields ──┼─► Merge ──► Correlate ──► IF (Hits > 0) ──► Discord
-        ├──► Mongo Query (EmergingThreats)─► Edit Fields ──┤
-        └──► Mongo Query (Hagezi_TIF)    ──► Edit Fields ──┘
-
-```
 
 ![n8n_cyber_shield_agent](assets/Screenshot_1.png)
 
@@ -228,14 +220,6 @@ Webhook ──► Mongo Query (Feodotracker) ──► Edit Fields ──┐
 * **Purpose:** Scheduled synchronization of external threat intelligence feeds at different intervals based on update frequency.
 * **Execution Trigger:** Schedule 1 for every 12 hours (00:30). Schedule 2 for every 24 hours (00:00)
 
-```
-Schedule 1 (12h) ──► HTTP Request (FeodoTracker)     ──► Clean Data 1 ──► IF ──► Sub-workflow (MongoDB_Intel_FeodoTracker)
-                 └──► HTTP Request (Hagezi_TIF)       ──► Clean Data 2 ──► IF ──► Sub-workflow (MongoDB_Intel_TIF)
-
-Schedule 2 (24h) ──► HTTP Request (EmergingThreats)   ──► Clean Data 4 ──► IF ──► Sub-workflow (MongoDB_Intel_EmergingThreats)
-                 └──► HTTP Request (Stamparm_IPSum)   ──► Clean Data 3 ──► IF ──► Sub-workflow (MongoDB_Intel_IPSum)
-
-```
 ![n8n_threat_intel_db_sub_workflow](assets/Screenshot_2.png)
 
 #### Why Sub-Workflows are Used:
@@ -259,14 +243,6 @@ The system fetches raw text feeds from three external sources every 24 hours:
 ### C. Batch Insertion Sub-Workflows (`MongoDB_Intel_1`, `2`, `3`)
 
 * **Purpose:** Wipes old threat intelligence records and performs batch inserts of fresh indicators.
-
-
-
-```
-Data Input ──► Delete Documents (Wipe Collection) ──► Loop Over Items (Batch Size: 5000) ──► Insert Documents ──► Success
-                                                               ▲                                   │
-                                                               └───────────────────────────────────┘
-```
 
 ![n8n_threat_intel_db](assets/Screenshot_3.png)
 
