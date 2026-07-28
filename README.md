@@ -8,7 +8,7 @@
 
 **Cyber Shield** is an automated network threat monitoring and real-time security alerting system. It passively watches outbound network traffic, cross-references connection targets against live global threat intelligence databases, and instantly sends structured security alerts to Discord when suspicious activity is detected.
 
-Built using **n8n**, **MongoDB**, **Tshark (Wireshark)**, and **Discord**, Cyber Shield bridges automated orchestration with low-level network visibility—providing proactive threat detection without heavy infrastructure overhead.
+Built using **n8n**, **MongoDB**, **Tshark (Wireshark)**, and **Discord**, Cyber Shield bridges automated orchestration with low-level network visibility (combining domain identification, IP lookup, and passive TLS fingerprinting capabilities) to deliver proactive threat detection without heavy infrastructure overhead.
 
 ---
 
@@ -22,7 +22,7 @@ Cyber Shield operates through two continuous, automated workflows:
 
 2. **Real-Time Detection & Alerting Engine**
    * **Traffic Sensing:** A lightweight PowerShell sensor running Tshark inspects active network connections in 30-second windows.
-   * **IP & Domain Correlation:** Evaluates both destination IP addresses and domain names. To inspect domains on encrypted HTTPS connections, the sensor reads the target domain name during the initial handshake—allowing Cyber Shield to detect malicious web traffic without needing decryption keys or proxy certificates.
+   * **IP & Domain Correlation:** Evaluates both destination IP addresses and domain names. To inspect domains on encrypted HTTPS connections, the sensor the sensor extracts TLS handshake telemetry (such as Server Name Indication) directly from the initial packet exchange, allowing Cyber Shield to detect malicious web traffic without needing decryption keys or proxy certificates.
    * **Severity Scoring & Alerting:** When a match occurs, the system evaluates the risk (High vs. Medium Risk) and sends a detailed, formatted alert directly to a Discord incident channel.
 
 ---
