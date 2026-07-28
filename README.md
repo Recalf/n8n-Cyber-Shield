@@ -282,7 +282,7 @@ Threat IP Source
 feodotracker
 
 Threat Domain Source
-feodotracker
+tif
 
 Intel:
 High Risk: Malicious IP (yyyyy) and domain (zzzzz) detected
