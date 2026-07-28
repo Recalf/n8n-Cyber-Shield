@@ -56,6 +56,7 @@ Cyber Shield operates through two continuous, automated workflows:
 
 ```
 
+
 ---
 
 ## 3. Sensor Deployment Script (Tshark PowerShell Agent)
@@ -158,8 +159,7 @@ Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy RemoteSigned
 
 
 * **Ingress Method:** HTTP Webhook (`POST`) protected via Header Authentication.
-
-
+* 
 ```
 Webhook ──► Mongo Query (Feodotracker) ──► Edit Fields ──┐
         ├──► Mongo Query (Stamparm_IPSum) ─► Edit Fields ──┼─► Merge ──► Correlate ──► IF (Hits > 0) ──► Discord
@@ -167,6 +167,8 @@ Webhook ──► Mongo Query (Feodotracker) ──► Edit Fields ──┐
         └──► Mongo Query (Hagezi_TIF)    ──► Edit Fields ──┘
 
 ```
+
+![n8n_cyber_shield_agent](assets/Screenshot_1.png)
 
 #### Node Breakdown & Logic:
 
@@ -234,6 +236,7 @@ Schedule 2 (24h) ──► HTTP Request (EmergingThreats)   ──► Clean Data
                  └──► HTTP Request (Stamparm_IPSum)   ──► Clean Data 3 ──► IF ──► Sub-workflow (MongoDB_Intel_IPSum)
 
 ```
+![n8n_threat_intel_db_sub_workflow](assets/Screenshot_2.png)
 
 #### Why Sub-Workflows are Used:
 
@@ -263,8 +266,9 @@ The system fetches raw text feeds from three external sources every 24 hours:
 Data Input ──► Delete Documents (Wipe Collection) ──► Loop Over Items (Batch Size: 5000) ──► Insert Documents ──► Success
                                                                ▲                                   │
                                                                └───────────────────────────────────┘
-
 ```
+
+![n8n_threat_intel_db](assets/Screenshot_3.png)
 
 * **Batching Configuration:** `batchSize: 5000`.
 
