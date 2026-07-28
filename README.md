@@ -167,7 +167,7 @@ Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy RemoteSigned
 1. **Webhook Node (`Listen to Tshark`):** Receives structured network traffic logs containing `src_ip`, `dst_ip`, `domain`, and `timestamp`.
 
 
-2. **MongoDB Parallel Query Nodes (`feodotracker`, `ipsum`, `emergingthreat`, `intel_tif`):** Queries MongoDB collections concurrently using standard `$or` and `$in` query syntax to match incoming destination IPs and domains:
+2. **MongoDB Parallel Query Nodes (`feodotracker`, `ipsum`, `emergingthreat`, `intel_tif`):** Queries MongoDB collections using standard `$or` and `$in` query syntax to match incoming destination IPs and domains:
 
 
 ```json
