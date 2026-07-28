@@ -6,16 +6,32 @@
 
 ## 1. System Overview
 
-**Cyber Shield** is an automated threat intelligence feed ingestion, network traffic correlation, and real-time security alerting system built on top of **n8n**, **MongoDB**, **Tshark (Wireshark)**, and **Discord**.
+**Cyber Shield** is an automated network threat monitoring and real-time security alerting system. It passively watches outbound network traffic, cross-references connection targets against live global threat intelligence databases, and instantly sends structured security alerts to Discord when suspicious activity is detected.
 
-The system operates in two core operational loops:
+Built using **n8n**, **MongoDB**, **Tshark (Wireshark)**, and **Discord**, Cyber Shield bridges automated orchestration with low-level network visibility—providing proactive threat detection without heavy infrastructure overhead.
 
-1. **Threat Intelligence Ingestion Pipeline (24h Sync):** Fetches, cleans, and stores high-volume threat intelligence indicators (IP addresses and domains) from trusted threat feeds into a MongoDB database.
+---
 
+### How It Works: Core Operational Loops
 
-2. **Real-Time Detection & Correlation Engine:** Listens to real-time network traffic captured by an edge sensor (running Tshark/PowerShell), cross-references active connections against the local threat intelligence database, calculates risk severity, and posts actionable incident alerts to a Discord channel.
+Cyber Shield operates through two continuous, automated workflows:
 
+1. **Threat Intelligence Pipeline (Data Ingestion)**
+   * **What it does:** Automatically fetches, normalizes, and stores over **190,000+ malicious IP addresses and domain indicators** from reputable security feeds (Feodo Tracker, Hagezi TIF, Stamparm IPSum, and Emerging Threats).
+   * **Sync Frequency:** Runs on **12-hour** schedules for some feeds and **24-hour** schedules for others, depending on each feed's expiration and update rate to keep local threat data current.
 
+2. **Real-Time Detection & Alerting Engine**
+   * **Traffic Sensing:** A lightweight PowerShell sensor running Tshark inspects active network connections in 30-second windows.
+   * **IP & Domain Correlation:** Evaluates both destination IP addresses and domain names. To inspect domains on encrypted HTTPS connections, the sensor reads the target domain name during the initial handshake—allowing Cyber Shield to detect malicious web traffic without needing decryption keys or proxy certificates.
+   * **Severity Scoring & Alerting:** When a match occurs, the system evaluates the risk (High vs. Medium Risk) and sends a detailed, formatted alert directly to a Discord incident channel.
+
+---
+
+### Key Capabilities at a Glance
+
+* **Hybrid Indicator Matching:** Checks both IP addresses and domain names to catch threats even when IP addresses change dynamically.
+* **Non-Invasive Domain Inspection:** Uses passive TLS handshake inspection (SNI) to see requested hostnames over HTTPS without interfering with user privacy or network performance.
+* **Lightweight Edge Architecture:** Offloads heavy database queries and correlation logic to background n8n workflows, keeping the network sensor footprint minimal.
 
 ---
 
