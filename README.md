@@ -114,13 +114,13 @@ The webhook receives a deduplicated JSON array of connection objects matching th
     "src_ip": "192.168.1.100",
     "dst_ip": "104.18.32.7",
     "domain": "malicious-example.com",
-    "timestamp": "May 15, 2024 14:32:01.123456000"
+    "timestamp": "2026-07-21T10:13:08.022703900+0100"
   },
   {
     "src_ip": "192.168.1.100",
     "dst_ip": "93.184.216.34",
     "domain": "another-domain.org",
-    "timestamp": "May 15, 2024 14:32:10.987654000"
+    "timestamp": "2026-07-21T10:13:07.904673400+0100"
   }
 ]
 ```
