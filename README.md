@@ -335,9 +335,9 @@ For collections that strictly contain *only* IPs or *only* Domains (like the fou
 
 ---
 
-#### Scenario B: Mixed Indicator Collections (Custom Feeds)
+#### Scenario B: Mixed Indicator Collections
 
-If you add custom threat feeds in the future that mix *both* IPs and Domains within the exact same MongoDB collection, you must use a **Compound Index** and an `$or` query. This ensures MongoDB doesn't have to scan the whole collection to separate IPs from Domains.
+If you add a threat feeds in the future that mix *both* IPs and Domains within the exact same MongoDB collection, you should use a **Compound Index** and an `$or` query. This ensures MongoDB doesn't have to scan the whole collection to separate IPs from Domains.
 
 **1. Index Setup:**
 
@@ -349,7 +349,7 @@ If you add custom threat feeds in the future that mix *both* IPs and Domains wit
 
 * **via MongoDB Shell / Code:**
   ```javascript
-  // Run ONLY on custom collections containing mixed indicator types
+  // Run on collections containing mixed indicator types
   db.collection.createIndex({ "indicator": 1, "type": 1 });
   ```
 
