@@ -1,4 +1,4 @@
-# Cyber Shield Threat Intelligence & Real-Time Alerting System
+# Cyber Shield Threat Intelligence & Real-Time Alerting System (NDR)
 
 ## Comprehensive Documentation
 
@@ -6,7 +6,7 @@
 
 ## 1. System Overview
 
-**Cyber Shield** is an automated network threat monitoring and real-time security alerting system. It passively watches outbound network traffic, cross-references connection targets against live global threat intelligence databases, and instantly sends structured security alerts to Discord when suspicious activity is detected.
+**Cyber Shield** is an automated Network Detection and Response (NDR) system. It passively watches outbound network traffic, cross-references connection targets against live global threat intelligence databases, and instantly sends structured security alerts to Discord when suspicious activity is detected.
 
 Built using **n8n**, **MongoDB**, **Tshark (Wireshark)**, and **Discord**, Cyber Shield bridges automated orchestration with low-level network visibility (combining domain identification, IP lookup, and passive TLS fingerprinting capabilities) to deliver proactive threat detection without heavy infrastructure overhead.
 
