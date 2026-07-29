@@ -400,3 +400,23 @@ If you are looking to fork this repository and expand its capabilities, here are
 ### ⚡ Scaling to Millions of IOCs (Redis & Bloom Filters)
 * **Current State:** Direct MongoDB collection lookups.
 * **Upgrade:** Implement an in-memory Redis cache or Bloom Filters in front of MongoDB for sub-millisecond $O(1)$ indicator checks, or migrate threat databases to ClickHouse to support multi-million indicator feeds.
+
+---
+
+## 8. License & Disclaimers
+
+### 📄 Software License
+This project is open-source software distributed under the **MIT License**. See the **[LICENSE](LICENSE)** file in the root directory for full legal details.
+
+### 🛡️ Threat Intelligence Data Attribution
+Cyber Shield relies on third-party community threat intelligence data. All intellectual property, trademarks, and threat data belong to their respective creators and maintainers:
+
+* **[Abuse.ch Feodo Tracker](https://feodotracker.abuse.ch/):** Active Botnet Command & Control (C2) IP blocklists.
+* **[Hagezi DNS Blocklists](https://github.com/hagezi/dns-blocklists):** Threat Intelligence Feed (TIF) domain lists.
+* **[Stamparm IPsum](https://github.com/stamparm/ipsum):** Aggregated multi-blacklist IP hit score feed.
+* **[Emerging Threats](https://rules.emergingthreats.net/):** Verified compromised host and attack source IP blocklists.
+
+### ⚠️ Security & Liability Disclaimer
+* **Passive Monitoring:** Cyber Shield is designed for defensive network visibility and threat detection. Users are solely responsible for ensuring that packet capture and network monitoring comply with local privacy laws and organizational policies.
+* **False Positives:** Threat intelligence feeds rely on dynamic community data. IP addresses and domain reputations change rapidly, and false positives may occur. 
+* **Warranty:** This software is provided *"as is"*, without warranty of any kind, express or implied. The author accepts no liability for network outages, missed security breaches, or damages resulting from the use or misuse of this system.
