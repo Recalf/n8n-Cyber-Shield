@@ -282,7 +282,7 @@ High Risk: Malicious IP (yyyyy) and domain (zzzzz) detected
 
 ## 6. Database Schema (MongoDB `threat_intel`)
 
-The local database maintains three core indicator collections:
+The local database maintains four core indicator collections:
 
 | Database Name | Collection Name | Sample Record Document Structure |
 | --- | --- | --- |
