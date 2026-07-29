@@ -283,17 +283,99 @@ High Risk: Malicious IP (yyyyy) and domain (zzzzz) detected
 ## 6. Database Schema (MongoDB `threat_intel`)
 
 The local database maintains four core indicator collections:
+| Database Name | Collection Name | Content Type | Sample Record Document Structure |
+| --- | --- | --- | --- |
+| `threat_intel` | `intel_feodotracker`<br> | IPs Only | `{ "_id": ObjectId("..."), "indicator": "195.178.110.137", "type": "ip" }` |
+| `threat_intel` | `intel_ipsum`<br> | IPs Only | `{ "_id": ObjectId("..."), "indicator": "94.154.43.50", "type": "ip" }` |
+| `threat_intel` | `intel_emergingthreats`<br> | IPs Only | `{ "_id": ObjectId("..."), "indicator": "195.178.110.137", "type": "ip" }` |
+| `threat_intel` | `intel_tif`<br> | Domains Only | `{ "_id": ObjectId("..."), "indicator": "malicious-phishing.com", "type": "domain" }` |
 
-| Database Name | Collection Name | Sample Record Document Structure |
-| --- | --- | --- |
-| `threat_intel` | `intel_feodotracker`<br> | `{ "_id": ObjectId("..."), "indicator": "195.178.110.137", "type": "ip" }` |
-| `threat_intel` | `intel_ipsum`<br> | `{ "_id": ObjectId("..."), "indicator": "94.154.43.50", "type": "ip" }` |
-| `threat_intel` | `intel_emergingthreats`<br> | `{ "_id": ObjectId("..."), "indicator": "195.178.110.137", "type": "ip" }` |
-| `threat_intel` | `intel_tif`<br> | `{ "_id": ObjectId("..."), "indicator": "malicious-phishing.com", "type": "domain" }` |
+### Database Indexes & n8n Queries
 
-### Database Indexes
+To optimize lookup performance during real-time traffic correlation, it's better to create indexes on these collections. The type of index and the exact n8n JSON query you use depends on whether the collection stores a single indicator type (only IPs or domains) or mixed types.
 
-To optimize lookup performance, each collection uses a compound index on `indicator` and `type`.
+
+#### Scenario A: Dedicated Collections (Default Setup - Fastest Performance)
+
+For collections that strictly contain *only* IPs or *only* Domains (like the four default feeds above), use a **Single-Field Index**. Indexing the `type` field is unnecessary when the type never changes; omitting it saves RAM, speeds up bulk ingestion, and allows for a simpler n8n query.
+
+**1. Index Setup:**
+
+* **via MongoDB Compass GUI:**
+  1. On each collection -> Select **Indexes** tab -> Click **Create Index**.
+  2. Add Field 1: `indicator` -> Select `1 (asc)`.
+  3. Leave options unchecked and click **Create Index**.
+
+* **via MongoDB Shell / Code:**
+  ```javascript
+  // Run on: intel_feodotracker, intel_ipsum, intel_emergingthreats, intel_tif
+  db.collection.createIndex({ "indicator": 1 });
+
+**2. n8n MongoDB Query Nodes:**
+
+*For IP-Only Collections (`intel_feodotracker`, `intel_ipsum`, `intel_emergingthreats`):*
+
+```json
+{
+  "indicator": {
+    "$in": {{ JSON.stringify($json.body.map(x => x.dst_ip).filter(Boolean)) }}
+  }
+}
+```
+
+*For Domain-Only Collections (`intel_tif`):*
+
+```json
+{
+  "indicator": {
+    "$in": {{ JSON.stringify($json.body.map(x => x.domain).filter(Boolean)) }}
+  }
+}
+```
+
+---
+
+#### Scenario B: Mixed Indicator Collections (Custom Feeds)
+
+If you add custom threat feeds in the future that mix *both* IPs and Domains within the exact same MongoDB collection, you must use a **Compound Index** and an `$or` query. This ensures MongoDB doesn't have to scan the whole collection to separate IPs from Domains.
+
+**1. Index Setup:**
+
+* **via MongoDB Compass GUI:**
+  1. Select the custom collection -> Open the **Indexes** tab -> Click **Create Index**.
+  2. Add Field 1: `indicator` -> Select `1 (asc)`.
+  3. Add Field 2: `type` -> Select `1 (asc)`.
+  4. Leave all other options unchecked and click **Create Index**.
+
+* **via MongoDB Shell / Code:**
+  ```javascript
+  // Run ONLY on custom collections containing mixed indicator types
+  db.collection.createIndex({ "indicator": 1, "type": 1 });
+  ```
+
+**2. n8n MongoDB Query Node:**
+
+```json
+{
+  "$or": [
+    {
+      "type": "ip",
+      "indicator": {
+        "$in": {{ JSON.stringify($json.body.map(x => x.dst_ip).filter(Boolean)) }}
+      }
+    },
+    {
+      "type": "domain",
+      "indicator": {
+        "$in": {{ JSON.stringify($json.body.map(x => x.domain).filter(Boolean)) }}
+      }
+    }
+  ]
+}
+```
+
+
+
 
 #### Setup via MongoDB Compass GUI
 1. On each collection -> Select **Indexes** tab -> Click **Create Index**.
