@@ -33,7 +33,8 @@ Cyber Shield operates through two continuous, automated workflows:
 * **Non-Invasive Domain Inspection:** Uses passive TLS handshake inspection (SNI) to see requested hostnames over HTTPS without interfering with user privacy or network performance.
 * **Lightweight Edge Architecture:** Offloads heavy database queries and correlation logic to background n8n workflows, keeping the network sensor footprint minimal.
 
-💡 **Why SNI Inspection Instead of IP-Only Matching?**
+#### Why SNI Inspection Instead of IP-Only Matching?
+
 * **Shared CDN & Multi-Tenant Protection:** Pinpoints the exact malicious domain on shared cloud IPs (e.g., Cloudflare, AWS, Fastly) without triggering false-positive alerts on thousands of legitimate websites co-hosted on the same IP.
 * **Fast-Flux & IP-Rotation Evasion:** Retains threat visibility when malware dynamically rotates Command & Control (C2) server IP addresses while relying on persistent or algorithmic domain names.
 
