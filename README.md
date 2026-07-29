@@ -167,7 +167,7 @@ Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy RemoteSigned
 
 ### External Threat Intelligence Sources
 
-The system fetches raw text feeds from three external sources every 24 hours:
+By default the system fetches raw text feeds from four external sources:
 
 | Source Name | Raw Feed Endpoint URL | Indicator Type | Description & Focus |
 | :--- | :--- | :--- | :--- |
@@ -212,7 +212,7 @@ The system fetches raw text feeds from three external sources every 24 hours:
 1. **Webhook Node (`Listen to Tshark`):** Receives structured network traffic logs containing `src_ip`, `dst_ip`, `domain`, and `timestamp`.
 
 
-2. **MongoDB Parallel Query Nodes (`FeodoTracker`, `Stamparm_IPSum`, `EmergingThreat`, `Hagezi_TIF`):** Queries MongoDB collections to match incoming destination IPs and domains. *(Note: The exact query syntax depends on your database index setup. See **Section 6** for the specific JSON queries to use here).
+2. **MongoDB Parallel Query Nodes (`FeodoTracker`, `Stamparm_IPSum`, `EmergingThreat`, `Hagezi_TIF`):** Queries MongoDB collections to match incoming destination IPs and domains. *(Note: The exact query syntax depends on your database index setup. See **Section 6** for the specific JSON queries to use here).*
 
 
 3. **Set / Edit Fields Nodes:** Appends an `intel_source` field (e.g., `"feodotracker"`, `"ipsum"`, `"emergingthreats"`, or `"tif"`) to identify where a match was found.
@@ -310,6 +310,7 @@ For collections that strictly contain *only* IPs or *only* Domains (like the fou
   ```javascript
   // Run on: intel_feodotracker, intel_ipsum, intel_emergingthreats, intel_tif
   db.collection.createIndex({ "indicator": 1 });
+  ```
 
 **2. n8n MongoDB Query Nodes:**
 
