@@ -17,7 +17,7 @@ Built using **n8n**, **MongoDB**, **Tshark (Wireshark)**, and **Discord**, Cyber
 Cyber Shield operates through two continuous, automated workflows:
 
 1. **Threat Intelligence Pipeline (Data Ingestion)**
-   * **What it does:** By default, it automatically fetches, normalizes, and stores over **30,000+ malicious IP addresses and 160,000+ malicious domain indicators** from reputable security feeds (Feodo Tracker, Hagezi TIF, Stamparm IPSum, and Emerging Threats). (this setup is pretty balanced because an IP addresse could use multiple domains)
+   * **What it does:** By default, it automatically fetches, normalizes, and stores over **30,000+ malicious IP addresses and 160,000+ malicious domain indicators** from reputable security feeds (Feodo Tracker, Hagezi TIF, Stamparm IPSum, and Emerging Threats). (this setup is pretty balanced because an IP address could use multiple domains)
    * **Sync Frequency:** Runs on **12-hour** schedules for some feeds and **24-hour** schedules for others, depending on each feed's expiration and update rate to keep local threat data current.
 
 2. **Real-Time Detection & Alerting Engine**
@@ -338,7 +338,7 @@ For collections that strictly contain *only* IPs or *only* Domains (like the fou
 
 #### Scenario B: Mixed Indicator Collections
 
-If you add a threat feeds in the future that mix *both* IPs and Domains within the exact same MongoDB collection, you should use a **Compound Index** and an `$or` query. This ensures MongoDB doesn't have to scan the whole collection to separate IPs from Domains.
+If you add threat feeds in the future that mix *both* IPs and Domains within the exact same MongoDB collection, you should use a **Compound Index** and an `$or` query. This ensures MongoDB doesn't have to scan the whole collection to separate IPs from Domains.
 
 **1. Index Setup:**
 
