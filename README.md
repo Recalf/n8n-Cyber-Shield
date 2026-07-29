@@ -379,30 +379,24 @@ If you add threat feeds in the future that mix *both* IPs and Domains within the
 
 ## 7. Potential Upgrades & Future Enhancements
 
-If you are looking to fork this repository and expand its capabilities, here are high-impact architectural upgrades to take Cyber Shield to an enterprise/production-grade level:
+If you are looking to fork this repository and expand its capabilities, here are high-impact architectural upgrades to make Cyber Shield better:
 
-### 🔬 Deep Packet Inspection (DPI) & TLS Decryption (Path-Level Inspection)
-* **Current State:** Inspects unencrypted Server Name Indication (SNI) headers during the initial TLS handshake.
-* **Upgrade:** Integrate an inline SSL/TLS decryption proxy (e.g., Mitmproxy, PolarProxy, or Suricata with certificate distribution). Decrypting HTTPS payload traffic enables full URI/path-level inspection (e.g., flagging `example.com/malware.exe` while allowing safe traffic to `example.com`).
-
-### ☁️ Dynamic Cloud Reputation Lookups
-* **Current State:** Purely local database matching against pre-fetched threat feeds.
-* **Upgrade:** Add automated fallback API queries to live cloud threat intelligence services (e.g., VirusTotal, AbuseIPDB, AlienVault OTX, GreyNoise) whenever a connection targets an unknown external IP/domain, appending real-time threat confidence scores to the Discord alert.
-
-### ⚡ Sub-Millisecond Scaling for Millions of IOCs
-* **Current State:** Standard MongoDB single-field/compound indexing designed for hundreds of thousands of records.
-* **Upgrade:** 
-  * **In-Memory Caching & Bloom Filters:** Deploy a Redis cache layer or an in-memory **Bloom Filter** in front of MongoDB. This allows instantaneous $O(1)$ indicator checks, querying MongoDB only when a potential match is flagged.
-  * **Analytical Database Engines:** Transition indicator storage to high-throughput analytics databases like **ClickHouse** or **Elasticsearch/OpenSearch** to handle multi-million indicator lists without slowdown.
-
-### 🚀 Low-Overhead Kernel Packet Capture (eBPF / XDP)
-* **Current State:** PowerShell wrapper driving user-space `tshark` capture cycles on Windows.
-* **Upgrade:** Develop a native Linux sensor using **eBPF (Extended Berkeley Packet Filter)** or **XDP (eXpress Data Path)**. Processing packets directly within the Linux kernel bypasses user-space context switches, dramatically reducing CPU/RAM usage on high-speed 10GbE+ links.
+### ☁️ Dynamic Cloud Reputation & API Enrichment
+* **Current State:** Local MongoDB indicator matching only.
+* **Upgrade:** Add an extra pipeline step to query live APIs (e.g., VirusTotal, AbuseIPDB, GreyNoise) for real-time risk scoring and enriched threat context on flagged connections before dispatching alerts.
 
 ### 🛑 Active Automated Response (Auto-Blocking SOAR)
-* **Current State:** Passive monitoring and Discord notifications.
-* **Upgrade:** Extend n8n or the sensor to trigger active firewall remediation. When a **High Risk** incident occurs, automatically inject temporary block rules into Windows Firewall (`netsh`), Linux `iptables`/`nftables`, or edge router firewalls to instantly sever C2 connections.
+* **Current State:** Passive network monitoring and Discord notifications.
+* **Upgrade:** Trigger automated firewall actions—instantly pushing block rules to Windows Firewall (`netsh`), Linux `iptables`/`nftables`, or edge routers upon High-Risk detections.
 
-### 🧠 ML-Driven Behavioral Anomaly Detection
-* **Current State:** Deterministic signature/IOC matching.
-* **Upgrade:** Implement lightweight Machine Learning models for **DGA (Domain Generation Algorithm)** detection, hostname entropy analysis, and timing interval analysis to detect zero-day outbound beaconing patterns before the target IP/domain appears on public blacklists.
+### 🔬 Deep Packet Inspection (DPI) & TLS Decryption
+* **Current State:** Inspects unencrypted Server Name Indication (SNI) hostnames during TLS handshakes.
+* **Upgrade:** Integrate an inline SSL/TLS decryption proxy to inspect full HTTP request paths and payloads (e.g., flagging `example.com/malware.exe` instead of just `example.com`).
+
+### 🧠 ML Behavioral Anomaly Detection
+* **Current State:** Exact match against static threat lists.
+* **Upgrade:** Add lightweight ML models for Domain Generation Algorithm (DGA) detection, entropy scoring, and C2 beaconing analysis to catch zero-day threats before they land on public feeds.
+
+### ⚡ Scaling to Millions of IOCs (Redis & Bloom Filters)
+* **Current State:** Direct MongoDB collection lookups.
+* **Upgrade:** Implement an in-memory Redis cache or Bloom Filters in front of MongoDB for sub-millisecond $O(1)$ indicator checks, or migrate threat databases to ClickHouse to support multi-million indicator feeds.
