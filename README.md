@@ -373,18 +373,3 @@ If you add custom threat feeds in the future that mix *both* IPs and Domains wit
   ]
 }
 ```
-
-
-
-
-#### Setup via MongoDB Compass GUI
-1. On each collection -> Select **Indexes** tab -> Click **Create Index**.
-2. Add Field 1: `indicator` -> Select `1 (asc)`.
-3. Add Field 2: `type` -> Select `1 (asc)`.
-4. Leave options unchecked and click **Create Index**.
-
-#### Setup via MongoDB Shell / Code
-```javascript
-// Run on each collection: intel_feodotracker, intel_ipsum, intel_emergingthreats, intel_tif
-db.collection.createIndex({ "indicator": 1, "type": 1 });
-```
