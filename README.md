@@ -373,7 +373,7 @@ Before starting, ensure you have the following installed:
 1. **Start MongoDB:** Ensure your MongoDB instance is running and accessible to n8n. *(Note: You do not need to manually create the collections; the system handles this. See **Section 6** for details on setting up database indexes once the workflows are imported).*
 2. **Import n8n Workflows:** Import the provided workflow JSON files into your n8n instance:
    * `Threat Intel DB` (Scheduled data ingestion).
-   * `MongoDB_Intel_{dbname}` (Batch insertion sub-workflows).
+   * `MongoDB_Intel_{dbname}` (sub-workflows).
    * `Cyber Shield Agent` (Real-time detection engine).
 3. **Configure Credentials:** Inside n8n, update the MongoDB nodes with your database connection credentials. Set your custom `X-API-KEY` in the Webhook node, and paste your Discord Webhook URL into the Discord alert node.
 4. **Initial Data Sync:** Manually execute the `Threat Intel DB` workflow once to fetch the latest feeds and populate your MongoDB instance before turning on the network sensor.
