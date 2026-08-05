@@ -387,23 +387,23 @@ If you add threat feeds in the future that mix *both* IPs and Domains within the
 
 If you are looking to fork this repository and expand its capabilities, here are high-impact architectural upgrades to make Cyber Shield better:
 
-### ☁️ Dynamic Cloud Reputation & API Enrichment
+### Dynamic Cloud Reputation & API Enrichment
 * **Current State:** Local MongoDB indicator matching only.
 * **Upgrade:** Add an extra pipeline step to query live APIs (e.g., VirusTotal, AbuseIPDB, GreyNoise) for real-time risk scoring and enriched threat context on flagged connections before dispatching alerts.
 
-### 🛑 Active Automated Response (Auto-Blocking SOAR)
+### Active Automated Response (Auto-Blocking SOAR)
 * **Current State:** Passive network monitoring and Discord notifications.
 * **Upgrade:** Trigger automated firewall actions—instantly pushing block rules to Windows Firewall (`netsh`), Linux `iptables`/`nftables`, or edge routers upon High-Risk detections.
 
-### 🔬 Deep Packet Inspection (DPI) & TLS Decryption
+### Deep Packet Inspection (DPI) & TLS Decryption
 * **Current State:** Inspects unencrypted Server Name Indication (SNI) hostnames during TLS handshakes.
 * **Upgrade:** Integrate an inline SSL/TLS decryption proxy to inspect full HTTP request paths and payloads (e.g., flagging `example.com/malware.exe` instead of just `example.com`).
 
-### 🧠 ML Behavioral Anomaly Detection
+### ML Behavioral Anomaly Detection
 * **Current State:** Exact match against static threat lists.
 * **Upgrade:** Add lightweight ML models for Domain Generation Algorithm (DGA) detection, entropy scoring, and C2 beaconing analysis to catch zero-day threats before they land on public feeds.
 
-### ⚡ Scaling to Millions of IOCs (Redis & Bloom Filters)
+### Scaling to Millions of IOCs (Redis & Bloom Filters)
 * **Current State:** Direct MongoDB collection lookups.
 * **Upgrade:** Implement an in-memory Redis cache or Bloom Filters in front of MongoDB for sub-millisecond $O(1)$ indicator checks, or migrate threat databases to ClickHouse to support multi-million indicator feeds.
 
@@ -411,10 +411,10 @@ If you are looking to fork this repository and expand its capabilities, here are
 
 ## 8. License & Disclaimers
 
-### 📄 Software License
+### Software License
 This project is open-source software distributed under the **MIT License**. See the **[LICENSE](LICENSE)** file in the root directory for full legal details.
 
-### 🛡️ Threat Intelligence Data Attribution
+### Threat Intelligence Data Attribution
 Cyber Shield relies on third-party community threat intelligence data. All intellectual property, trademarks, and threat data belong to their respective creators and maintainers:
 
 * **[Abuse.ch Feodo Tracker](https://feodotracker.abuse.ch/):** Active Botnet Command & Control (C2) IP blocklists.
