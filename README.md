@@ -131,30 +131,6 @@ The webhook receives a deduplicated JSON array of connection objects matching th
   }
 ]
 ```
-
-### Running the Script & Execution Policies
-
-By default, Windows restricts running custom or unsigned PowerShell scripts. To execute the sensor, you must modify the Execution Policy.
-
-**Option A: Temporary Bypass (Recommended for testing)**
-
-This modifies the policy *only* for the current active PowerShell window. Once you close the terminal, the security policy reverts to its safe default.
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
-.\sensor_v3_test.ps1
-```
-
-**Option B: Permanent Bypass (For permanent/production deployments)**
-
-If you are setting this up to run automatically on startup or in the background and do not want to manually bypass the policy every time, you can set it permanently. **Open PowerShell as Administrator** and run:
-
-```powershell
-Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy RemoteSigned
-```
-
-*(After doing this, you can execute `.\sensor_v3_test.ps1` or any other powershell script normally anytime).*
-
 ---
 
 ## 4. Workflow Specifications
@@ -382,8 +358,62 @@ If you add threat feeds in the future that mix *both* IPs and Domains within the
 ```
 
 ---
+## 7. Quick Start: Setup & Execution
 
-## 7. Potential Upgrades & Future Enhancements
+Follow these steps to deploy Cyber Shield and start monitoring your network traffic.
+
+### 1. Prerequisites
+Before starting, ensure you have the following installed:
+* **MongoDB:** Installed and running locally or on a network-accessible server.
+* **n8n:** Installed and active (via Docker, npm, or n8n Cloud).
+* **Wireshark / Tshark:** Installed on the host machine acting as the network sensor (ensure `tshark` is added to your system's PATH).
+* **Discord:** A dedicated channel with an active Webhook URL for receiving alerts.
+
+### 2. Infrastructure Setup (n8n & MongoDB)
+1. **Start MongoDB:** Ensure your MongoDB instance is running and accessible to n8n. *(Note: You do not need to manually create the collections; the system handles this. See **Section 6** for details on setting up database indexes once the workflows are imported).*
+2. **Import n8n Workflows:** Import the provided workflow JSON files into your n8n instance:
+   * `Threat Intel DB` (Scheduled data ingestion).
+   * `MongoDB_Intel_dbname` (Batch insertion sub-workflows).
+   * `Cyber Shield Agent` (Real-time detection engine).
+3. **Configure Credentials:** Inside n8n, update the MongoDB nodes with your database connection credentials. Set your custom `X-API-KEY` in the Webhook node, and paste your Discord Webhook URL into the Discord alert node.
+4. **Initial Data Sync:** Manually execute the `Threat Intel DB` workflow once to fetch the latest feeds and populate your MongoDB instance before turning on the network sensor.
+
+### 3. Sensor Configuration
+Locate the included PowerShell script (e.g., `sensor_v3_test.ps1`) and open it in a text editor. Define the following variables at the top of the file:
+
+| Variable | Description |
+| --- | --- |
+| `$WebhookUrl` | The full HTTP endpoint of your n8n Cyber Shield Agent Webhook. |
+| `$InterfaceNum` | The numeric ID of the network interface tshark should listen on (Run `tshark -D` in your terminal to find your interface number). |
+| `$SecretKey` | Your custom API Key / Password, sent via the `X-API-KEY` header to authenticate with n8n. |
+
+
+### Running the Script & Execution Policies
+
+By default, Windows restricts running custom or unsigned PowerShell scripts. To execute the sensor, you must modify the Execution Policy.
+
+**Option A: Temporary Bypass (Recommended for testing)**
+
+This modifies the policy *only* for the current active PowerShell window. Once you close the terminal, the security policy reverts to its safe default.
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+.\sensor_v3_test.ps1
+```
+
+**Option B: Permanent Bypass (For permanent/production deployments)**
+
+If you are setting this up to run automatically on startup or in the background and do not want to manually bypass the policy every time, you can set it permanently. **Open PowerShell as Administrator** and run:
+
+```powershell
+Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy RemoteSigned
+```
+
+*(After doing this, you can execute `.\sensor_v3_test.ps1` or any other powershell script normally anytime).*
+
+---
+
+## 8. Potential Upgrades & Future Enhancements
 
 If you are looking to fork this repository and expand its capabilities, here are high-impact architectural upgrades to make Cyber Shield better:
 
@@ -409,7 +439,7 @@ If you are looking to fork this repository and expand its capabilities, here are
 
 ---
 
-## 8. License & Disclaimers
+## 9. License & Disclaimers
 
 ### Software License
 This project is open-source software distributed under the **MIT License**. See the **[LICENSE](LICENSE)** file in the root directory for full legal details.
