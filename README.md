@@ -240,25 +240,7 @@ By default the system fetches raw text feeds from four external sources:
 
 ### Discord Alert Preview Example
 
-```text
-🚨 Threat Intelligence Alert
-
-Connection
-Src IP: xxxxx
-Dst IP: yyyyy
-Domain: zzzzz
-Time: 7/21/2026, 09:13:07
-
-Threat IP Source
-feodotracker
-
-Threat Domain Source
-tif
-
-Intel:
-High Risk: Malicious IP (yyyyy) and domain (zzzzz) detected
-
-```
+![n8n_cyber_shield_preview](assets/Screenshot_4.png)
 
 ---
 
