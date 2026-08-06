@@ -204,7 +204,7 @@ The script runs in an infinite loop, capturing network data in batches and struc
  │       Headers: { "X-API-KEY": "$SecretKey", "Content-Type": "application/json" }
  │       Body: JSON Array of structured events (See Schema below)
  │
- └──► 6. Cooldown (5 seconds)
+ └──► 6. Cooldown (2 seconds)
          Loops back to Start
 ```
 
