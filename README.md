@@ -6,6 +6,7 @@
 ## 📋 Table of Contents
 
 - [1. System Overview](#1-system-overview)
+
   - [How It Works: Core Operational Loops](#how-it-works-core-operational-loops)
   - [Key Capabilities at a Glance](#key-capabilities-at-a-glance)
   - [Why SNI Inspection Instead of IP-Only Matching?](#why-sni-inspection-instead-of-ip-only-matching)
