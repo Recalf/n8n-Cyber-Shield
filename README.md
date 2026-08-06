@@ -1,5 +1,7 @@
 # Cyber Shield: Threat Intelligence & Real-Time Alerting System (NDR)
 
+![cyber_shield_logo](assets/philipp-katzenberger-iIJrUoeRoCQ-unsplash.jpg)
+
 ## Comprehensive Documentation
 
 ---
@@ -91,7 +93,7 @@ Cyber Shield operates through two continuous, automated workflows:
 
 ### Discord Alert Preview
 
-![n8n_cyber_shield_preview](assets/Screenshot_4.png)
+![cyber_shield_preview](assets/Screenshot_4.png)
 
 ---
 
