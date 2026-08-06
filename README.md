@@ -9,7 +9,7 @@
 
 ### Overview & Architecture
 
-- [1. System Overview](#1-system-overview)
+- [1. Overview](#1-overview)
   - [How It Works: Core Operational Loops](#how-it-works-core-operational-loops)
   - [Key Capabilities at a Glance](#key-capabilities-at-a-glance)
   - [Why SNI Inspection Instead of IP-Only Matching?](#why-sni-inspection-instead-of-ip-only-matching)
@@ -58,7 +58,7 @@
 
 ---
 
-## 1. System Overview
+## 1. Overview
 
 **Cyber Shield** is a lightweight host-based automated Network Detection and Response (NDR) system. It passively watches outbound network traffic, cross-references connection targets against live global threat intelligence databases, and instantly sends structured security alerts to Discord when suspicious activity is detected.
 
