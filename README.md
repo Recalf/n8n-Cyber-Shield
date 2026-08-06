@@ -3,48 +3,99 @@
 ## Comprehensive Documentation
 
 ---
-## 📋 Table of Contents
+
+## 📑 Table of Contents
+
+### Overview & Architecture
 
 - [1. System Overview](#1-system-overview)
-
   - [How It Works: Core Operational Loops](#how-it-works-core-operational-loops)
   - [Key Capabilities at a Glance](#key-capabilities-at-a-glance)
   - [Why SNI Inspection Instead of IP-Only Matching?](#why-sni-inspection-instead-of-ip-only-matching)
   - [Discord Alert Preview](#discord-alert-preview)
 - [2. System Architecture & Component Workflow](#2-system-architecture--component-workflow)
+
+### Sensor & Telemetry
+
 - [3. Sensor Deployment Script (Tshark PowerShell Agent)](#3-sensor-deployment-script-tshark-powershell-agent)
   - [Configuration Variables](#configuration-variables)
   - [Script Execution Flow & Payload Schema](#script-execution-flow--payload-schema)
+
+### Workflows & Detection Logic
+
 - [4. Workflow Specifications](#4-workflow-specifications)
-  - [A. Threat Intelligence Data Pipeline: `Threat Intel DB`](#a-threat-intelligence-data-pipeline-threat-intel-db)
+  - [Threat Intelligence Data Pipeline (`Threat Intel DB`)](#a-threat-intelligence-data-pipeline-threat-intel-db)
   - [External Threat Intelligence Sources](#external-threat-intelligence-sources)
-  - [B. Batch Insertion Sub-Workflows (`MongoDB_Intel_dbname`)](#b-batch-insertion-sub-workflows-mongodb_intel_dbname)
-  - [C. Real-Time Detection Engine: `Cyber Shield Agent`](#c-real-time-detection-engine-cyber-shield-agent)
+  - [Batch Insertion Sub-Workflows (`MongoDB_Intel_dbname`)](#b-batch-insertion-sub-workflows-mongodb_intel_dbname)
+  - [Real-Time Detection Engine (`Cyber Shield Agent`)](#c-real-time-detection-engine-cyber-shield-agent)
 - [5. Threat Scoring & Discord Alert Format](#5-threat-scoring--discord-alert-format)
   - [Risk Scoring Matrix](#risk-scoring-matrix)
   - [Discord Alert Preview Example](#discord-alert-preview-example)
+
+### Database & Performance
+
 - [6. Database Schema (MongoDB `threat_intel`)](#6-database-schema-mongodb-threat_intel)
   - [Database Indexes & n8n Queries](#database-indexes--n8n-queries)
-    - [Scenario A: Dedicated Collections (Default Setup - Fastest Performance)](#scenario-a-dedicated-collections-default-setup---fastest-performance)
+    - [Scenario A: Dedicated Collections (Default Setup)](#scenario-a-dedicated-collections-default-setup---fastest-performance)
     - [Scenario B: Mixed Indicator Collections](#scenario-b-mixed-indicator-collections)
+
+### Deployment & Operations
+
 - [7. Quick Start: Setup & Execution](#7-quick-start-setup--execution)
-  - [1. Prerequisites](#1-prerequisites)
-  - [2. Infrastructure Setup (n8n & MongoDB)](#2-infrastructure-setup-n8n--mongodb)
-  - [3. Sensor Configuration](#3-sensor-configuration)
+  - [Prerequisites](#1-prerequisites)
+  - [Infrastructure Setup (n8n & MongoDB)](#2-infrastructure-setup-n8n--mongodb)
+  - [Sensor Configuration](#3-sensor-configuration)
   - [Running the Script & Execution Policies](#running-the-script--execution-policies)
+
+### Roadmap & Legal
+
 - [8. Potential Upgrades & Future Enhancements](#8-potential-upgrades--future-enhancements)
-  - [Dynamic Cloud Reputation & API Enrichment](#dynamic-cloud-reputation--api-enrichment)
-  - [Active Automated Response (Auto-Blocking SOAR)](#active-automated-response-auto-blocking-soar)
-  - [Deep Packet Inspection (DPI) & TLS Decryption](#deep-packet-inspection-dpi--tls-decryption)
-  - [ML Behavioral Anomaly Detection](#ml-behavioral-anomaly-detection)
-  - [Scaling to Millions of IOCs (Redis & Bloom Filters)](#scaling-to-millions-of-iocs-redis--bloom-filters)
 - [9. License & Disclaimers](#9-license--disclaimers)
   - [Software License](#software-license)
   - [Threat Intelligence Data Attribution](#threat-intelligence-data-attribution)
-  - [⚠️ Security & Liability Disclaimer](#%EF%B8%8F-security--liability-disclaimer)
+  - [Security & Liability Disclaimer](#%EF%B8%8F-security--liability-disclaimer)
 
 ---
+
+## 1. System Overview
+
+**Cyber Shield** is a lightweight host-based automated Network Detection and Response (NDR) system. It passively watches outbound network traffic, cross-references connection targets against live global threat intelligence databases, and instantly sends structured security alerts to Discord when suspicious activity is detected.
+
+Built using **n8n**, **MongoDB**, **Tshark (Wireshark)**, and **Discord**, Cyber Shield bridges automated orchestration with low-level network visibility (combining domain identification, IP lookup, and passive TLS fingerprinting capabilities) to deliver proactive threat detection without heavy infrastructure overhead.
+
 ---
+
+### How It Works: Core Operational Loops
+
+Cyber Shield operates through two continuous, automated workflows:
+
+1. **Threat Intelligence Pipeline (Data Ingestion)**
+   * **What it does:** By default, it automatically fetches, normalizes, and stores over **30,000+ malicious IP addresses and 160,000+ malicious domain indicators** from reputable security feeds (Feodo Tracker, Hagezi TIF, Stamparm IPSum, and Emerging Threats). (this setup is pretty balanced because an IP address could use multiple domains)
+   * **Sync Frequency:** Runs on **12-hour** schedules for some feeds and **24-hour** schedules for others, depending on each feed's expiration and update rate to keep local threat data current.
+
+2. **Real-Time Detection & Alerting Engine**
+   * **Traffic Sensing:** A lightweight PowerShell sensor running Tshark inspects active network connections in 30-second windows.
+   * **IP & Domain Correlation:** Evaluates both destination IP addresses and domain names. To inspect domains on encrypted HTTPS connections, the sensor extracts TLS handshake telemetry (such as Server Name Indication) directly from the initial packet exchange, allowing Cyber Shield to detect malicious web traffic without needing decryption keys or proxy certificates.
+   * **Severity Scoring & Alerting:** When a match occurs, the system evaluates the risk (High vs. Medium Risk) and sends a detailed, formatted alert directly to a Discord incident channel.
+
+### Key Capabilities at a Glance
+
+* **Hybrid Indicator Matching:** Checks both IP addresses and domain names to catch threats even when IP addresses change dynamically.
+* **Non-Invasive Domain Inspection:** Uses passive TLS handshake inspection (SNI) to see requested hostnames over HTTPS without interfering with user privacy or network performance.
+* **Lightweight Edge Architecture:** Offloads heavy database queries and correlation logic to background n8n workflows, keeping the network sensor footprint minimal.
+
+### Why SNI Inspection Instead of IP-Only Matching?
+
+* **Shared CDN & Multi-Tenant Protection:** Pinpoints the exact malicious domain on shared cloud IPs (e.g., Cloudflare, AWS, Fastly) without triggering false-positive alerts on thousands of legitimate websites co-hosted on the same IP.
+* **Fast-Flux & IP-Rotation Evasion:** Retains threat visibility when malware dynamically rotates Command & Control (C2) server IP addresses while relying on persistent or algorithmic domain names.
+
+### Discord Alert Preview
+
+![n8n_cyber_shield_preview](assets/Screenshot_4.png)
+
+---
+
+## 2. System Architecture & Component Workflow
 
 ## 1. System Overview
 
