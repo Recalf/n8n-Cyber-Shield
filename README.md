@@ -3,6 +3,47 @@
 ## Comprehensive Documentation
 
 ---
+## 📋 Table of Contents
+
+- [1. System Overview](#1-system-overview)
+  - [How It Works: Core Operational Loops](#how-it-works-core-operational-loops)
+  - [Key Capabilities at a Glance](#key-capabilities-at-a-glance)
+  - [Why SNI Inspection Instead of IP-Only Matching?](#why-sni-inspection-instead-of-ip-only-matching)
+  - [Discord Alert Preview](#discord-alert-preview)
+- [2. System Architecture & Component Workflow](#2-system-architecture--component-workflow)
+- [3. Sensor Deployment Script (Tshark PowerShell Agent)](#3-sensor-deployment-script-tshark-powershell-agent)
+  - [Configuration Variables](#configuration-variables)
+  - [Script Execution Flow & Payload Schema](#script-execution-flow--payload-schema)
+- [4. Workflow Specifications](#4-workflow-specifications)
+  - [A. Threat Intelligence Data Pipeline: `Threat Intel DB`](#a-threat-intelligence-data-pipeline-threat-intel-db)
+  - [External Threat Intelligence Sources](#external-threat-intelligence-sources)
+  - [B. Batch Insertion Sub-Workflows (`MongoDB_Intel_dbname`)](#b-batch-insertion-sub-workflows-mongodb_intel_dbname)
+  - [C. Real-Time Detection Engine: `Cyber Shield Agent`](#c-real-time-detection-engine-cyber-shield-agent)
+- [5. Threat Scoring & Discord Alert Format](#5-threat-scoring--discord-alert-format)
+  - [Risk Scoring Matrix](#risk-scoring-matrix)
+  - [Discord Alert Preview Example](#discord-alert-preview-example)
+- [6. Database Schema (MongoDB `threat_intel`)](#6-database-schema-mongodb-threat_intel)
+  - [Database Indexes & n8n Queries](#database-indexes--n8n-queries)
+    - [Scenario A: Dedicated Collections (Default Setup - Fastest Performance)](#scenario-a-dedicated-collections-default-setup---fastest-performance)
+    - [Scenario B: Mixed Indicator Collections](#scenario-b-mixed-indicator-collections)
+- [7. Quick Start: Setup & Execution](#7-quick-start-setup--execution)
+  - [1. Prerequisites](#1-prerequisites)
+  - [2. Infrastructure Setup (n8n & MongoDB)](#2-infrastructure-setup-n8n--mongodb)
+  - [3. Sensor Configuration](#3-sensor-configuration)
+  - [Running the Script & Execution Policies](#running-the-script--execution-policies)
+- [8. Potential Upgrades & Future Enhancements](#8-potential-upgrades--future-enhancements)
+  - [Dynamic Cloud Reputation & API Enrichment](#dynamic-cloud-reputation--api-enrichment)
+  - [Active Automated Response (Auto-Blocking SOAR)](#active-automated-response-auto-blocking-soar)
+  - [Deep Packet Inspection (DPI) & TLS Decryption](#deep-packet-inspection-dpi--tls-decryption)
+  - [ML Behavioral Anomaly Detection](#ml-behavioral-anomaly-detection)
+  - [Scaling to Millions of IOCs (Redis & Bloom Filters)](#scaling-to-millions-of-iocs-redis--bloom-filters)
+- [9. License & Disclaimers](#9-license--disclaimers)
+  - [Software License](#software-license)
+  - [Threat Intelligence Data Attribution](#threat-intelligence-data-attribution)
+  - [⚠️ Security & Liability Disclaimer](#%EF%B8%8F-security--liability-disclaimer)
+
+---
+---
 
 ## 1. System Overview
 
