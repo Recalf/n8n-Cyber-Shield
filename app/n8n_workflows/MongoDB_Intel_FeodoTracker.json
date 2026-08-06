@@ -1,0 +1,206 @@
+{
+  "name": "MongoDB_Intel_FeodoTracker",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "return $('Data from web').all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        304
+      ],
+      "id": "8ade1466-4251-4603-82fe-29307992a6dc",
+      "name": "data from node 1"
+    },
+    {
+      "parameters": {
+        "batchSize": 5000,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1168,
+        304
+      ],
+      "id": "0f7ac078-8942-44c1-aa62-10ec349ff0e6",
+      "name": "Loop Over Items",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "intel_feodotracker",
+        "fields": "=indicator,type",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        1312,
+        416
+      ],
+      "id": "2f523120-11cd-47b5-9807-6b94d96e32a3",
+      "name": "Insert documents",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "mongoDb": {
+          "id": "LBNzLkCCY60ALjql",
+          "name": "MongoDB account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "collection": "intel_feodotracker"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        640,
+        304
+      ],
+      "id": "b58f2715-442d-49d8-981b-5c26471910d8",
+      "name": "Delete documents",
+      "executeOnce": true,
+      "alwaysOutputData": false,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "mongoDb": {
+          "id": "LBNzLkCCY60ALjql",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "errorMessage": "={{ $json.error }}"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        432
+      ],
+      "id": "9e41ba78-389d-4495-8e26-06e76755eaed",
+      "name": "Insert Error",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        288
+      ],
+      "id": "952eb557-a8d7-4a99-97b8-e1326f257f86",
+      "name": "Success"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "00e51d0f-657d-4aaf-8edf-ea22de363f02",
+      "typeVersion": 1.1,
+      "name": "Data from web",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        400,
+        304
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "data from node 1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insert documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert documents": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insert Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete documents": {
+      "main": [
+        [
+          {
+            "node": "data from node 1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Data from web": {
+      "main": [
+        [
+          {
+            "node": "Delete documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f2c30f1c-550e-4c11-8f26-aebf73b4e9ed",
+  "meta": {
+    "instanceId": "abd33e13fbd439c2d6e14c5b17caf49918d841cfde63059df5db031304b3bdfb"
+  },
+  "id": "L1mDxvnFSoFRjSLB",
+  "tags": []
+}
