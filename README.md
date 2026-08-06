@@ -337,6 +337,7 @@ By default the system fetches raw text feeds from four external sources:
 
 ### Discord Alert Preview Example
 
+```text
 🚨 Threat Intelligence Alert
 Connection
 Src IP: 192.168.1.1
@@ -352,6 +353,7 @@ TIF
 
 Intel:
 High Risk: Malicious IP (198.51.100.44) and domain (c2-server.test) detected
+```
 
 ---
 
