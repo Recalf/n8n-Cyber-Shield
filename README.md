@@ -5,8 +5,6 @@
 ## 🎬 Live Demo
 [https://drive.google.com/file/d/1ADcJ2MZzeHz0UhCKbCBBpWKSe56JtM7-/view?usp=sharing](https://drive.google.com/file/d/1DCuPBbUfLUMvwi_PXXia7v8M6qRG-S37/view?usp=sharing)
 
----
-
 ## 📑 Table of Contents
 
 ### Overview & Architecture
