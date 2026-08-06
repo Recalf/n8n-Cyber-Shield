@@ -98,48 +98,6 @@ Cyber Shield operates through two continuous, automated workflows:
 
 ## 2. System Architecture & Component Workflow
 
-## 1. System Overview
-
-**Cyber Shield** is a lightweight host-based automated Network Detection and Response (NDR) system. It passively watches outbound network traffic, cross-references connection targets against live global threat intelligence databases, and instantly sends structured security alerts to Discord when suspicious activity is detected.
-
-Built using **n8n**, **MongoDB**, **Tshark (Wireshark)**, and **Discord**, Cyber Shield bridges automated orchestration with low-level network visibility (combining domain identification, IP lookup, and passive TLS fingerprinting capabilities) to deliver proactive threat detection without heavy infrastructure overhead.
-
----
-
-### How It Works: Core Operational Loops
-
-Cyber Shield operates through two continuous, automated workflows:
-
-1. **Threat Intelligence Pipeline (Data Ingestion)**
-   * **What it does:** By default, it automatically fetches, normalizes, and stores over **30,000+ malicious IP addresses and 160,000+ malicious domain indicators** from reputable security feeds (Feodo Tracker, Hagezi TIF, Stamparm IPSum, and Emerging Threats). (this setup is pretty balanced because an IP address could use multiple domains)
-   * **Sync Frequency:** Runs on **12-hour** schedules for some feeds and **24-hour** schedules for others, depending on each feed's expiration and update rate to keep local threat data current.
-
-2. **Real-Time Detection & Alerting Engine**
-   * **Traffic Sensing:** A lightweight PowerShell sensor running Tshark inspects active network connections in 30-second windows.
-   * **IP & Domain Correlation:** Evaluates both destination IP addresses and domain names. To inspect domains on encrypted HTTPS connections, the sensor extracts TLS handshake telemetry (such as Server Name Indication) directly from the initial packet exchange, allowing Cyber Shield to detect malicious web traffic without needing decryption keys or proxy certificates.
-   * **Severity Scoring & Alerting:** When a match occurs, the system evaluates the risk (High vs. Medium Risk) and sends a detailed, formatted alert directly to a Discord incident channel.
-
-### Key Capabilities at a Glance
-
-* **Hybrid Indicator Matching:** Checks both IP addresses and domain names to catch threats even when IP addresses change dynamically.
-* **Non-Invasive Domain Inspection:** Uses passive TLS handshake inspection (SNI) to see requested hostnames over HTTPS without interfering with user privacy or network performance.
-* **Lightweight Edge Architecture:** Offloads heavy database queries and correlation logic to background n8n workflows, keeping the network sensor footprint minimal.
-
-
-### Why SNI Inspection Instead of IP-Only Matching?
-
-* **Shared CDN & Multi-Tenant Protection:** Pinpoints the exact malicious domain on shared cloud IPs (e.g., Cloudflare, AWS, Fastly) without triggering false-positive alerts on thousands of legitimate websites co-hosted on the same IP.
-* **Fast-Flux & IP-Rotation Evasion:** Retains threat visibility when malware dynamically rotates Command & Control (C2) server IP addresses while relying on persistent or algorithmic domain names.
-
-
-### Discord Alert Preview
-
-![n8n_cyber_shield_preview](assets/Screenshot_4.png)
-
----
-
-## 2. System Architecture & Component Workflow
-
 ```
 [ Edge Network Sensor ]
      (Tshark / PS1)
