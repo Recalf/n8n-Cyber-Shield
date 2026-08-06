@@ -39,6 +39,11 @@ Cyber Shield operates through two continuous, automated workflows:
 * **Shared CDN & Multi-Tenant Protection:** Pinpoints the exact malicious domain on shared cloud IPs (e.g., Cloudflare, AWS, Fastly) without triggering false-positive alerts on thousands of legitimate websites co-hosted on the same IP.
 * **Fast-Flux & IP-Rotation Evasion:** Retains threat visibility when malware dynamically rotates Command & Control (C2) server IP addresses while relying on persistent or algorithmic domain names.
 
+
+### Discord Alert Preview
+
+![n8n_cyber_shield_preview](assets/Screenshot_4.png)
+
 ---
 
 ## 2. System Architecture & Component Workflow
@@ -240,7 +245,21 @@ By default the system fetches raw text feeds from four external sources:
 
 ### Discord Alert Preview Example
 
-![n8n_cyber_shield_preview](assets/Screenshot_4.png)
+🚨 Threat Intelligence Alert
+Connection
+Src IP: 192.168.1.1
+Dst IP: 198.51.100.44
+Domain: c2-server.test
+Time: 7/29/2026, 16:08:21
+
+Threat IP Source
+FeodoTracker
+
+Threat Domain Source
+TIF
+
+Intel:
+High Risk: Malicious IP (198.51.100.44) and domain (c2-server.test) detected
 
 ---
 
