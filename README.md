@@ -93,7 +93,7 @@ Cyber Shield operates through two continuous, automated workflows:
 
 ### Discord Alert Preview
 
-![cyber_shield_preview](assets/Screenshot_4.png)
+![cyber_shield_preview](assets/Screenshot_0.png)
 
 ---
 
