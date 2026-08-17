@@ -1,5 +1,5 @@
 # Cyber Shield: Threat Intelligence & Real-Time Alerting System (NDR)
-*built with advanced n8n Workflow Automation & ETL
+*Built with advanced n8n Workflow Automation & ETL*
 
 ![cyber_shield_logo](assets/philipp-katzenberger-iIJrUoeRoCQ-unsplash.jpg)
 
