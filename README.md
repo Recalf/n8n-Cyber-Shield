@@ -1,5 +1,5 @@
 # Cyber Shield: Threat Intelligence & Real-Time Alerting System (NDR)
-## Advanced n8n Workflow Automation & ETL for Net Security
+Advanced n8n Workflow Automation & ETL for Net Security
 
 ![cyber_shield_logo](assets/philipp-katzenberger-iIJrUoeRoCQ-unsplash.jpg)
 
